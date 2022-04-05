@@ -1,0 +1,299 @@
+body {
+    overflow: hidden;
+
+    /* Start the interface hidden */
+    display: none;
+}
+
+.container {
+    overflow: hidden;
+}
+
+.centred {
+    /* Centering code found https://css-tricks.com/quick-css-trick-how-to-center-an-object-exactly-in-the-center/ */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+}
+
+.centred-h {
+    position: fixed;
+    left: 50%;
+    transform: translate(-50%, 0%);
+
+}
+
+#sell-contract {
+    max-width: 700px;
+    max-height: 70vh;
+    width: 35vw;
+    height: 75vh;
+
+    border-radius: 15px;
+    background-color: white;
+
+    padding: 10px;
+
+}
+
+#buy-contract {
+    position: absolute;
+    width: 165vh;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+    user-select: none;
+}
+
+#buy-vehicle-desc {
+    position: absolute;
+    left: 66.8vh;
+    bottom: 48vh;
+    font-family: 'Poppins';
+    font-size: 13px;
+    width: 45vh;
+    overflow: hidden;
+    word-wrap: break-word;
+}
+
+.vehicle-description:hover {
+    background-color: rgba(214, 214, 214, 0.589);
+}
+
+.vehicle-description:focus {
+    background-color: rgba(214, 214, 214, 0.589);
+}
+
+.vehicle-description::placeholder {
+    text-align: left;
+}
+
+#sell-vehicle {
+    width: 60px;
+    height: 35px;
+    background: rgb(141, 141, 141);
+    margin: 0 auto;
+    margin-top: 5px;
+    left: 0;
+    right: 0;
+    border-radius: 2px;
+    transition: all 0.1s ease-in-out;
+}
+
+#sell-vehicle:hover {
+    background: rgb(179, 179, 179);
+}
+
+#sell-vehicle > p {
+    text-align: center;
+    line-height: 2.9vh;
+    color: white;
+    font-family: 'Poppins';
+    font-size: 12px;
+    font-weight: bold;
+}
+
+input.vehicle-sell-price::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: white;
+    opacity: 1; /* Firefox */
+}
+
+#buy-vehicle {
+    width: 60px;
+    height: 35px;
+    background: rgb(141, 141, 141);
+    bottom: 22vh;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+    border-radius: 2px;
+    transition: all 0.1s ease-in-out;
+}
+
+#buy-vehicle:hover {
+    background: rgb(179, 179, 179);
+}
+
+#buy-vehicle > p {
+    text-align: center;
+    line-height: 2.9vh;
+    color: white;
+    font-family: 'Poppins';
+    font-size: 12px;
+    font-weight: bold;
+}
+
+#form-header {
+    height: 160px;
+    border-bottom: solid;
+    border-color: black;
+    border-width: 2px;
+    padding-left: 20px;
+    margin-bottom: 30px;
+
+    display: flex;
+    flex-direction: row;
+}
+
+.v-centred-container {
+    /* Needed for child elements to align relative to form-header */
+    position: relative;
+
+}
+
+.vertical-center {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+  }
+
+.logo {
+    width: 20%;
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+}
+
+#biz-name {
+    width: 65%;
+    text-align: center;
+    font-family: 'Poppins';
+    font-size: 1.3em;
+    font-weight: bold;
+
+}
+
+#the-form {
+    margin-top: 80px;
+
+    width: 80%;
+    height: 70%;
+
+}
+
+ul {
+    list-style-type: none;
+}
+
+.errors {
+    font-family: 'Poppins';
+    background-color: crimson;
+    width: 80%;
+    border-radius: 3px;
+    border-color: rgba(0, 0, 0, 0.555);
+    padding: 10px;
+    margin-top: 20px;
+
+}
+
+.form-entry {
+    /* margin-top: 20px; */
+    height: 13%;
+}
+
+.form-entry input {
+    width: 90%;
+    padding-left: 5px;
+}
+
+.form-field {
+    font-family: 'Poppins';
+    font-size: 14px;
+    padding-bottom: 2px;
+    border-bottom: solid;
+    border-color: black;
+    border-width: 3px;
+}
+
+.form-field-summary {
+    font-weight: bold;
+}
+
+.vehicle-description {
+    /* left: 66.5vh;
+    bottom: 48vh;
+    width: 45vh;
+    height: 2vh; */
+
+    outline: none;
+    background: none;
+    font-family: 'Poppins';
+    transition: background-color 0.1s ease-in-out;
+    overflow:hidden;
+    display:inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vehicle-sell-price {
+    position: absolute;
+    font-size: 12px;
+    border: none;
+    outline: none;
+    background: none;
+}
+
+table {
+    font-family: 'Poppins';
+    font-size: 12px;
+    
+    border: solid;
+    border-color: black;
+    background: lightslategray;
+}
+
+.pricing-table {
+    margin-bottom: 15px;
+    width: 50%;
+}
+
+.table-field-heading {
+    font-weight: 1000;
+}
+
+
+
+
+#buy-price {
+    position: absolute;
+    left: 87vh;
+    bottom: 35.8vh;
+    font-family: 'Poppins';
+    font-size: 12px;
+}
+
+#buy-seller-name {
+    position: absolute;
+    left: 66.8vh;
+    top: 21.5vh;
+    font-family: 'Poppins';
+    font-size: 14px;
+}
+
+#buy-seller-banknr {
+    position: absolute;
+    left: 66.8vh;
+    top: 28vh;
+    font-family: 'Poppins';
+    font-size: 14px;
+}
+
+#buy-seller-telnr {
+    position: absolute;
+    left: 66.8vh;
+    top: 34.2vh;
+    font-family: 'Poppins';
+    font-size: 14px;
+}
+
+#buy-vehicle-plate {
+    position: absolute;
+    left: 66.8vh;
+    top: 40.5vh;
+    font-family: 'Poppins';
+}
