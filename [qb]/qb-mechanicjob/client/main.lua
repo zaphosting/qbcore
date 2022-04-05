@@ -55,7 +55,7 @@ local function DeleteTarget(id)
             Config.Targets[id].zone:destroy();
         end
     end
-    
+
     Config.Targets[id] = nil
 end
 
@@ -78,7 +78,7 @@ local function RegisterDutyTarget()
 
     if Config.UseTarget then
         exports['qb-target']:AddBoxZone(dutyTargetBoxID, coords, 1.5, 1.5, {
-            name = dutyTargetBoxName,
+            name = dutyTargetBoxID,
             heading = 0,
             debugPoly = false,
             minZ = coords.z - 1.0,
@@ -91,11 +91,11 @@ local function RegisterDutyTarget()
             }},
             distance = 2.0
         })
-    
+
         Config.Targets[dutyTargetBoxID] = {created = true}
     else
         local zone = BoxZone:Create(coords, 1.5, 1.5, {
-            name = dutyTargetBoxName,
+            name = dutyTargetBoxID,
             heading = 0,
             debugPoly = false,
             minZ = coords.z - 1.0,
@@ -107,10 +107,10 @@ local function RegisterDutyTarget()
             else
                 exports['qb-core']:HideText()
             end
-    
+
             isInsideDutyZone = isPointInside
         end)
-    
+
         Config.Targets[dutyTargetBoxID] = {created = true, zone = zone}
     end
 end
@@ -142,7 +142,7 @@ local function RegisterStashTarget()
             }},
             distance = 2.0
         })
-    
+
         Config.Targets[stashTargetBoxID] = {created = true}
     else
         local zone = BoxZone:Create(coords, 1.5, 1.5, {
@@ -158,10 +158,10 @@ local function RegisterStashTarget()
             else
                 exports['qb-core']:HideText()
             end
-    
+
             isInsideStashZone = isPointInside
         end)
-    
+
         Config.Targets[stashTargetBoxID] = {created = true, zone = zone}
     end
 end
@@ -533,7 +533,7 @@ local function PartsMenu()
                         event = "qb-mechanicjob:client:NoDamage",
                     }
                 }
-            end                               
+            end
         end
         vehicleMenu[#vehicleMenu+1] = {
             header = "⬅ Close Menu",
@@ -557,7 +557,7 @@ local function PartMenu(data)
         },
         {
             header = ""..partName.."",
-            txt = "Repair : "..QBCore.Shared.Items[Config.RepairCostAmount[part].item]["label"].." "..Config.RepairCostAmount[part].costs.."x", 
+            txt = "Repair : "..QBCore.Shared.Items[Config.RepairCostAmount[part].item]["label"].." "..Config.RepairCostAmount[part].costs.."x",
             params = {
                 event = "qb-mechanicjob:client:RepairPart",
                 args = {
@@ -622,7 +622,7 @@ local function UnattachVehicle()
 
     DestroyVehiclePlateZone(ClosestPlate)
     RegisterVehiclePlateZone(ClosestPlate, Config.Plates[ClosestPlate])
-    
+
 end
 
 local function SpawnListVehicle(model)
@@ -661,7 +661,7 @@ local function VehicleList()
                     spawnName = k
                 }
             }
-        }                              
+        }
     end
     vehicleMenu[#vehicleMenu+1] = {
         header = "⬅ Close Menu",
@@ -791,7 +791,7 @@ end)
 
 RegisterNetEvent('QBCore:Client:SetDuty', function(duty)
     onDuty = duty
-    
+
     DeleteTarget(dutyTargetBoxID)
     DeleteTarget(stashTargetBoxID)
     RegisterDutyTarget()
@@ -965,7 +965,7 @@ RegisterNetEvent('qb-mechanicjob:client:target:OpenStash', function ()
     })
 end)
 
-RegisterNetEvent('qb-mechanicjob:client:target:CloseMenu', function () 
+RegisterNetEvent('qb-mechanicjob:client:target:CloseMenu', function ()
     DestroyVehiclePlateZone(ClosestPlate)
     RegisterVehiclePlateZone(ClosestPlate, Config.Plates[ClosestPlate])
 
@@ -1003,7 +1003,7 @@ CreateThread(function ()
         SetClosestPlate()
 
         if PlayerJob.name == "mechanic" then
-            
+
             if isInsideDutyZone then
                 wait = 0
                 if IsControlJustPressed(0, 38) then
@@ -1018,7 +1018,7 @@ CreateThread(function ()
                         TriggerEvent("qb-mechanicjob:client:target:OpenStash")
                     end
                 end
-    
+
                 if isInsideGarageZone then
                     wait = 0
                     local inVehicle = IsPedInAnyVehicle(PlayerPedId())
@@ -1032,7 +1032,7 @@ CreateThread(function ()
                         end
                     end
                 end
-    
+
                 if isInsideVehiclePlateZone then
                     wait = 0
                     local attachedVehicle = Config.Plates[ClosestPlate].AttachedVehicle
@@ -1054,12 +1054,12 @@ CreateThread(function ()
                             Wait(500)
                             DoScreenFadeIn(150)
                             TriggerServerEvent('qb-vehicletuning:server:SetAttachedVehicle', veh, ClosestPlate)
-                            
+
                             DestroyVehiclePlateZone(ClosestPlate)
                             RegisterVehiclePlateZone(ClosestPlate, Config.Plates[ClosestPlate])
                         end
                     end
-                end  
+                end
             end
         end
         Wait(wait)
