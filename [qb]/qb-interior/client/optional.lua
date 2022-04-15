@@ -1,4 +1,4 @@
--- Medium Housing Shells https://www.k4mb1maps.com/package/4672307
+-- Medium Housing Shells V1 https://www.k4mb1maps.com/package/4672307
 
 exports('CreateMedium2', function(spawn)
 	local objects = {}
@@ -38,7 +38,7 @@ exports('CreateMedium3', function(spawn)
     return { objects, POIOffsets }
 end)
 
--- Modern Housing Shells https://www.k4mb1maps.com/package/4673169
+-- Modern Housing Shells V1 https://www.k4mb1maps.com/package/4673169
 
 exports('CreateBanham', function(spawn)
 	local objects = {}
@@ -97,7 +97,7 @@ exports('CreateWestons2', function(spawn)
     return { objects, POIOffsets }
 end)
 
--- Classic Housing Shells https://www.k4mb1maps.com/package/4673140
+-- Classic Housing Shells V1 https://www.k4mb1maps.com/package/4673140
 
 exports('CreateClassicHouse', function(spawn)
 	local objects = {}
@@ -156,7 +156,7 @@ exports('CreateClassicHouse3', function(spawn)
     return { objects, POIOffsets }
 end)
 
--- Highend Housing Shells https://www.k4mb1maps.com/package/4673131
+-- Highend Housing Shells V1 https://www.k4mb1maps.com/package/4673131
 
 exports('CreateHighend1', function(spawn)
 	local objects = {}
@@ -215,7 +215,7 @@ exports('CreateHighend3', function(spawn)
     return { objects, POIOffsets }
 end)
 
--- Deluxe Housing Shells https://www.k4mb1maps.com/package/4673159
+-- Deluxe Housing Shells V1 https://www.k4mb1maps.com/package/4673159
 
 exports('CreateHighend', function(spawn)
 	local objects = {}
@@ -828,7 +828,7 @@ exports('CreateWeed2', function(spawn)
     return { objects, POIOffsets }
 end)
 
--- k4mb1 Mansion Housing https://www.k4mb1maps.com/package/4783251
+-- Mansion Housing Shells https://www.k4mb1maps.com/package/4783251
 
 exports('CreateMansion', function(spawn)
 	local objects = {}
@@ -881,6 +881,476 @@ exports('CreateMansion3', function(spawn)
 	    Wait(1000)
 	end
 	local house = CreateObject(`k4_mansion3_shell`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+-- Empty Hotel Shells https://www.k4mb1maps.com/package/4811134
+
+exports('CreateHotel1', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": 4.94, "y": 4.39, "z": 1.17, "h": 177.55}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`k4_hotel1_shell`)
+	while not HasModelLoaded(`k4_hotel1_shell`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`k4_hotel1_shell`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+exports('CreateHotel2', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": 4.99, "y": 4.39, "z": 1.17, "h": 178.62}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`k4_hotel2_shell`)
+	while not HasModelLoaded(`k4_hotel2_shell`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`k4_hotel2_shell`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+exports('CreateHotel3', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": 4.90, "y": 4.39, "z": 1.17, "h": 182.13}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`k4_hotel3_shell`)
+	while not HasModelLoaded(`k4_hotel3_shell`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`k4_hotel3_shell`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+-- Empty Motel Shells https://www.k4mb1maps.com/package/4811137
+
+exports('CreateMotel1', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": -0.46, "y": -2.46, "z": 1.00, "h": 274.07}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`k4_motel1_shell`)
+	while not HasModelLoaded(`k4_motel1_shell`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`k4_motel1_shell`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+exports('CreateMotel2', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": 0.06, "y": -3.75, "z": 1.05, "h": 359.40}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`k4_motel2_shell`)
+	while not HasModelLoaded(`k4_motel2_shell`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`k4_motel2_shell`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+exports('CreateMotel3', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": 3.13, "y": 3.50, "z": 1.16, "h": 182.53}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`k4_motel3_shell`)
+	while not HasModelLoaded(`k4_motel3_shell`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`k4_motel3_shell`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+-- Default Shells V2 https://www.k4mb1maps.com/package/5015832
+
+exports('CreateV2Default1', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": -2.32, "y": -0.63, "z": 1.60, "h": 272.87}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`default_housing1_k4mb1`)
+	while not HasModelLoaded(`default_housing1_k4mb1`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`default_housing1_k4mb1`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+exports('CreateV2Default2', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": -5.14, "y": -5.05, "z": 3.18, "h": 270.61}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`default_housing2_k4mb1`)
+	while not HasModelLoaded(`default_housing2_k4mb1`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`default_housing2_k4mb1`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+exports('CreateV2Default3', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": -1.35, "y": -2.06, "z": 1.11, "h": 1.14}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`default_housing3_k4mb1`)
+	while not HasModelLoaded(`default_housing3_k4mb1`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`default_housing3_k4mb1`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+exports('CreateV2Default4', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": 0.13, "y": -3.85, "z": 1.09, "h": 1.71}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`default_housing4_k4mb1`)
+	while not HasModelLoaded(`default_housing4_k4mb1`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`default_housing4_k4mb1`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+exports('CreateV2Default5', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": 1.42, "y": -14.34, "z": 1.14, "h": 0.87}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`default_housing5_k4mb1`)
+	while not HasModelLoaded(`default_housing5_k4mb1`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`default_housing5_k4mb1`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+exports('CreateV2Default6', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": 4.75, "y": -6.49, "z": 1.03, "h": 359.60}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`default_housing6_k4mb1`)
+	while not HasModelLoaded(`default_housing6_k4mb1`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`default_housing6_k4mb1`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+-- Deluxe Shells V2 https://www.k4mb1maps.com/package/5043817
+
+exports('CreateV2Deluxe1', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": -22.28, "y": -0.45, "z": 7.26, "h": 268.97}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`deluxe_housing1_k4mb1`)
+	while not HasModelLoaded(`deluxe_housing1_k4mb1`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`deluxe_housing1_k4mb1`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+exports('CreateV2Deluxe2', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": -10.30, "y": 0.87, "z": 6.55, "h": 274.91}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`deluxe_housing2_k4mb1`)
+	while not HasModelLoaded(`deluxe_housing2_k4mb1`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`deluxe_housing2_k4mb1`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+exports('CreateV2Deluxe3', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": -9.37, "y": 5.66, "z": 1.08, "h": 270.04}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`deluxe_housing3_k4mb1`)
+	while not HasModelLoaded(`deluxe_housing3_k4mb1`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`deluxe_housing3_k4mb1`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+-- Highend Shells V2 https://www.k4mb1maps.com/package/5043819
+
+exports('CreateV2HighEnd1', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": -2.22, "y": 9.02, "z": 8.69, "h": 182.64}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`highend_housing1_k4mb1`)
+	while not HasModelLoaded(`highend_housing1_k4mb1`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`highend_housing1_k4mb1`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+exports('CreateV2HighEnd2', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": -2.22, "y": 8.97, "z": 8.69, "h": 171.95}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`highend_housing2_k4mb1`)
+	while not HasModelLoaded(`highend_housing2_k4mb1`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`highend_housing2_k4mb1`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+exports('CreateV2HighEnd3', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": 11.48, "y": 4.50, "z": 6.42, "h": 128.15}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`highend_housing3_k4mb1`)
+	while not HasModelLoaded(`highend_housing3_k4mb1`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`highend_housing3_k4mb1`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+-- Medium Shells V2 https://www.k4mb1maps.com/package/5043821
+
+exports('CreateV2Medium1', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": -0.24, "y": -5.66, "z": 1.71, "h": 1.5}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`medium_housing1_k4mb1`)
+	while not HasModelLoaded(`medium_housing1_k4mb1`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`medium_housing1_k4mb1`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+exports('CreateV2Medium2', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": 6.04, "y": 0.34, "z": 1.03, "h": 357.99}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`medium_housing2_k4mb1`)
+	while not HasModelLoaded(`medium_housing2_k4mb1`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`medium_housing2_k4mb1`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+exports('CreateV2Medium3', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": 3.42, "y": 1.18, "z": 1.01, "h": 274.17}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`medium_housing3_k4mb1`)
+	while not HasModelLoaded(`medium_housing3_k4mb1`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`medium_housing3_k4mb1`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+-- Modern Shells V2 https://www.k4mb1maps.com/package/5043818
+
+exports('CreateV2Modern1', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": 4.29, "y": 10.52, "z": 6.30, "h": 178.92}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`modern_housing1_k4mb1`)
+	while not HasModelLoaded(`modern_housing1_k4mb1`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`modern_housing1_k4mb1`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+exports('CreateV2Modern2', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": -1.76, "y": 10.37, "z": 6.30, "h": 184.71}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`modern_housing2_k4mb1`)
+	while not HasModelLoaded(`modern_housing2_k4mb1`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`modern_housing2_k4mb1`, spawn.x, spawn.y, spawn.z, false, false, false)
+    FreezeEntityPosition(house, true)
+    objects[#objects+1] = house
+	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)
+    return { objects, POIOffsets }
+end)
+
+exports('CreateV2Modern3', function(spawn)
+	local objects = {}
+    local POIOffsets = {}
+	POIOffsets.exit = json.decode('{"x": -3.39, "y": -1.45, "z": 5.65, "h": 90.77}')
+	DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do
+        Wait(10)
+    end
+	RequestModel(`modern_housing3_k4mb1`)
+	while not HasModelLoaded(`modern_housing3_k4mb1`) do
+	    Wait(1000)
+	end
+	local house = CreateObject(`modern_housing3_k4mb1`, spawn.x, spawn.y, spawn.z, false, false, false)
     FreezeEntityPosition(house, true)
     objects[#objects+1] = house
 	TeleportToInterior(spawn.x + POIOffsets.exit.x, spawn.y + POIOffsets.exit.y, spawn.z + POIOffsets.exit.z, POIOffsets.exit.h)

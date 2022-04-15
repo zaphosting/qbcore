@@ -23,20 +23,23 @@ RegisterNetEvent('qb-admin:client:inventory', function(targetPed)
     TriggerServerEvent("inventory:server:OpenInventory", "otherplayer", targetPed)
 end)
 
-RegisterNetEvent('qb-admin:client:spectate', function(targetPed, coords)
+RegisterNetEvent('qb-admin:client:spectate', function(targetPed)
     local myPed = PlayerPedId()
     local targetplayer = GetPlayerFromServerId(targetPed)
     local target = GetPlayerPed(targetplayer)
     if not isSpectating then
         isSpectating = true
         SetEntityVisible(myPed, false) -- Set invisible
-        SetEntityInvincible(myPed, true) -- set godmode
+        SetEntityCollision(myPed, false, false) -- Set collision
+        SetEntityInvincible(myPed, true) -- Set invincible
+        NetworkSetEntityInvisibleToNetwork(myPed, true) -- Set invisibility
         lastSpectateCoord = GetEntityCoords(myPed) -- save my last coords
-        SetEntityCoords(myPed, coords) -- Teleport To Player
         NetworkSetInSpectatorMode(true, target) -- Enter Spectate Mode
     else
         isSpectating = false
         NetworkSetInSpectatorMode(false, target) -- Remove From Spectate Mode
+        NetworkSetEntityInvisibleToNetwork(myPed, false) -- Set Visible
+        SetEntityCollision(myPed, true, true) -- Set collision
         SetEntityCoords(myPed, lastSpectateCoord) -- Return Me To My Coords
         SetEntityVisible(myPed, true) -- Remove invisible
         SetEntityInvincible(myPed, false) -- Remove godmode
@@ -52,6 +55,14 @@ RegisterNetEvent('qb-admin:client:SendStaffChat', function(name, msg)
     TriggerServerEvent('qb-admin:server:Staffchat:addMessage', name, msg)
 end)
 
+local function getVehicleFromVehList(hash)
+	for k,v in pairs(QBCore.Shared.Vehicles) do
+		if hash == v.hash then
+			return v.model
+		end
+	end
+end
+
 RegisterNetEvent('qb-admin:client:SaveCar', function()
     local ped = PlayerPedId()
     local veh = GetVehiclePedIsIn(ped)
@@ -60,7 +71,7 @@ RegisterNetEvent('qb-admin:client:SaveCar', function()
         local plate = QBCore.Functions.GetPlate(veh)
         local props = QBCore.Functions.GetVehicleProperties(veh)
         local hash = props.model
-        local vehname = GetDisplayNameFromVehicleModel(hash):lower()
+        local vehname = getVehicleFromVehList(hash)
         if QBCore.Shared.Vehicles[vehname] ~= nil and next(QBCore.Shared.Vehicles[vehname]) ~= nil then
             TriggerServerEvent('qb-admin:server:SaveCar', props, QBCore.Shared.Vehicles[vehname], GetHashKey(veh), plate)
         else

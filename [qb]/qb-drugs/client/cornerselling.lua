@@ -84,14 +84,7 @@ local function toFarAway()
 end
 
 local function callPolice(coords)
-    local title = policeMessage[math.random(1, #policeMessage)]
-    local pCoords = GetEntityCoords(PlayerPedId())
-    local s1, s2 = GetStreetNameAtCoord(pCoords.x, pCoords.y, pCoords.z)
-    local street1 = GetStreetNameFromHashKey(s1)
-    local street2 = GetStreetNameFromHashKey(s2)
-    local streetLabel = street1
-    if street2 ~= nil then streetLabel = street1..' '..street2 end
-    TriggerServerEvent('police:server:PoliceAlertMessage', title, streetLabel, coords)
+    TriggerServerEvent('police:server:policeAlert', 'Drug sale in progress')
     hasTarget = false
     Wait(5000)
 end
@@ -165,7 +158,7 @@ local function SellToPed(ped)
     TaskStartScenarioInPlace(ped, "WORLD_HUMAN_STAND_IMPATIENT_UPRIGHT", 0, false)
 
     if hasTarget then
-        while pedDist < 1.5 do
+        while pedDist < 1.5 and not IsPedDeadOrDying(ped) do
             coords = GetEntityCoords(PlayerPedId(), true)
             pedCoords = GetEntityCoords(ped)
             pedDist = #(coords - pedCoords)
@@ -283,7 +276,7 @@ CreateThread(function()
                     end
                 end
                 local closestPed, closestDistance = QBCore.Functions.GetClosestPed(coords, PlayerPeds)
-                if closestDistance < 15.0 and closestPed ~= 0 and not IsPedInAnyVehicle(closestPed) then
+                if closestDistance < 15.0 and closestPed ~= 0 and not IsPedInAnyVehicle(closestPed) and GetPedType(closestPed) ~= 28 then
                     SellToPed(closestPed)
                 end
             end

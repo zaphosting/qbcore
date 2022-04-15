@@ -167,8 +167,8 @@ local function createVehZones(shopName, entity)
                 vector3(Config.Shops[shopName]['ShowroomVehicles'][i]['coords'].x,
                 Config.Shops[shopName]['ShowroomVehicles'][i]['coords'].y,
                 Config.Shops[shopName]['ShowroomVehicles'][i]['coords'].z),
-                2.75,
-                2.75, {
+                Config.Shops[shopName]['Zone']['size'],           --2.75
+                Config.Shops[shopName]['Zone']['size'], {
                 name="box_zone",
                 debugPoly=false,
             })
@@ -568,21 +568,26 @@ RegisterNetEvent('qb-vehicleshop:client:swapVehicle', function(data)
         local closestVehicle, closestDistance = QBCore.Functions.GetClosestVehicle(vector3(Config.Shops[shopName]["ShowroomVehicles"][data.ClosestVehicle].coords.x, Config.Shops[shopName]["ShowroomVehicles"][data.ClosestVehicle].coords.y, Config.Shops[shopName]["ShowroomVehicles"][data.ClosestVehicle].coords.z))
         if closestVehicle == 0 then return end
         if closestDistance < 5 then QBCore.Functions.DeleteVehicle(closestVehicle) end
-        Wait(250)
+        while DoesEntityExist(closestVehicle) do
+            Wait(50)
+        end
+        Config.Shops[shopName]["ShowroomVehicles"][data.ClosestVehicle].chosenVehicle = data.toVehicle
         local model = GetHashKey(data.toVehicle)
         RequestModel(model)
         while not HasModelLoaded(model) do
-            Citizen.Wait(250)
+            Wait(50)
         end
         local veh = CreateVehicle(model, Config.Shops[shopName]["ShowroomVehicles"][data.ClosestVehicle].coords.x, Config.Shops[shopName]["ShowroomVehicles"][data.ClosestVehicle].coords.y, Config.Shops[shopName]["ShowroomVehicles"][data.ClosestVehicle].coords.z, false, false)
-        SetModelAsNoLongerNeeded(model)
+        while not DoesEntityExist(veh) do
+            Wait(50)
+        end
+        SetModelAsNoLongerNeeded(model)        
         SetVehicleOnGroundProperly(veh)
         SetEntityInvincible(veh,true)
         SetEntityHeading(veh, Config.Shops[shopName]["ShowroomVehicles"][data.ClosestVehicle].coords.w)
         SetVehicleDoorsLocked(veh, 3)
         FreezeEntityPosition(veh, true)
-        SetVehicleNumberPlateText(veh, 'BUY ME')
-        Config.Shops[shopName]["ShowroomVehicles"][data.ClosestVehicle].chosenVehicle = data.toVehicle
+        SetVehicleNumberPlateText(veh, 'BUY ME') 
         if Config.UsingTarget then createVehZones(shopName, veh) end
     end
 end)

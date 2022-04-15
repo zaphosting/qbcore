@@ -331,7 +331,7 @@ end
 local function CheckWeaponDamage(ped)
     local detected = false
     for k, v in pairs(QBCore.Shared.Weapons) do
-        if HasPedBeenDamagedByWeapon(ped, GetHashKey(k), 0) then
+        if HasPedBeenDamagedByWeapon(ped, k, 0) then
             detected = true
             if not IsInDamageList(k) then
                 TriggerEvent('chat:addMessage', {
@@ -831,8 +831,10 @@ local listen = false
                 exports['qb-core']:KeyPressed(38)
                 if variable == "checkin" then
                    TriggerEvent('qb-ambulancejob:checkin')
+                    listen = false
                 elseif variable == "beds" then
                     TriggerEvent('qb-ambulancejob:beds')
+                    listen = false
                 end
             end
             Wait(1)

@@ -8,6 +8,7 @@ local permissions = {
     ['kickall'] = 'admin',
     ['kick'] = 'admin'
 }
+local players = {}
 
 -- Get Dealers
 QBCore.Functions.CreateCallback('test:getdealers', function(source, cb)
@@ -16,26 +17,6 @@ end)
 
 -- Get Players
 QBCore.Functions.CreateCallback('test:getplayers', function(source, cb) -- WORKS
-    local players = {}
-    for k, v in pairs(QBCore.Functions.GetPlayers()) do
-        local targetped = GetPlayerPed(v)
-        local ped = QBCore.Functions.GetPlayer(v)
-        players[#players+1] = {
-            name = ped.PlayerData.charinfo.firstname .. ' ' .. ped.PlayerData.charinfo.lastname .. ' | (' .. GetPlayerName(v) .. ')',
-            id = v,
-            coords = GetEntityCoords(targetped),
-            cid = ped.PlayerData.charinfo.firstname .. ' ' .. ped.PlayerData.charinfo.lastname,
-            citizenid = ped.PlayerData.citizenid,
-            sources = GetPlayerPed(ped.PlayerData.source),
-            sourceplayer= ped.PlayerData.source
-
-        }
-    end
-        -- Sort players list by source ID (1,2,3,4,5, etc) --
-        table.sort(players, function(a, b)
-            return a.id < b.id
-        end)
-        ------
     cb(players)
 end)
 
@@ -62,20 +43,6 @@ end
 
 RegisterNetEvent('qb-admin:server:GetPlayersForBlips', function()
     local src = source
-    local players = {}
-    for k, v in pairs(QBCore.Functions.GetPlayers()) do
-        local targetped = GetPlayerPed(v)
-        local ped = QBCore.Functions.GetPlayer(v)
-        players[#players+1] = {
-            name = ped.PlayerData.charinfo.firstname .. ' ' .. ped.PlayerData.charinfo.lastname .. ' | ' .. GetPlayerName(v),
-            id = v,
-            coords = GetEntityCoords(targetped),
-            cid = ped.PlayerData.charinfo.firstname .. ' ' .. ped.PlayerData.charinfo.lastname,
-            citizenid = ped.PlayerData.citizenid,
-            sources = GetPlayerPed(ped.PlayerData.source),
-            sourceplayer= ped.PlayerData.source
-        }
-    end
     TriggerClientEvent('qb-admin:client:Show', src, players)
 end)
 
@@ -91,7 +58,7 @@ RegisterNetEvent('qb-admin:server:kick', function(player, reason)
     local src = source
     if QBCore.Functions.HasPermission(src, permissions['kick']) or IsPlayerAceAllowed(src, 'command')  then
         TriggerEvent('qb-log:server:CreateLog', 'bans', 'Player Kicked', 'red', string.format('%s was kicked by %s for %s', GetPlayerName(player.id), GetPlayerName(src), reason), true)
-        DropPlayer(player.id, Lang:t("info.kicked_server") .. ':\n' .. reason .. '\n\n' .. Lang:t("info.check_discord") .. QBCore.Config.Server.discord)
+        DropPlayer(player.id, Lang:t("info.kicked_server") .. ':\n' .. reason .. '\n\n' .. Lang:t("info.check_discord") .. QBCore.Config.Server.Discord)
     end
 end)
 
@@ -119,9 +86,9 @@ RegisterNetEvent('qb-admin:server:ban', function(player, time, reason)
         })
         TriggerEvent('qb-log:server:CreateLog', 'bans', 'Player Banned', 'red', string.format('%s was banned by %s for %s', GetPlayerName(player.id), GetPlayerName(src), reason), true)
         if banTime >= 2147483647 then
-            DropPlayer(player.id, Lang:t("info.banned") .. '\n' .. reason .. Lang:t("info.ban_perm") .. QBCore.Config.Server.discord)
+            DropPlayer(player.id, Lang:t("info.banned") .. '\n' .. reason .. Lang:t("info.ban_perm") .. QBCore.Config.Server.Discord)
         else
-            DropPlayer(player.id, Lang:t("info.banned") .. '\n' .. reason .. Lang:t("info.ban_expires") .. timeTable['day'] .. '/' .. timeTable['month'] .. '/' .. timeTable['year'] .. ' ' .. timeTable['hour'] .. ':' .. timeTable['min'] .. '\n🔸 Check our Discord for more information: ' .. QBCore.Config.Server.discord)
+            DropPlayer(player.id, Lang:t("info.banned") .. '\n' .. reason .. Lang:t("info.ban_expires") .. timeTable['day'] .. '/' .. timeTable['month'] .. '/' .. timeTable['year'] .. ' ' .. timeTable['hour'] .. ':' .. timeTable['min'] .. '\n🔸 Check our Discord for more information: ' .. QBCore.Config.Server.Discord)
         end
     end
 end)
@@ -219,7 +186,11 @@ RegisterNetEvent('qb-admin:server:Staffchat:addMessage', function(name, msg)
     local src = source
     if QBCore.Functions.HasPermission(src, 'admin') or IsPlayerAceAllowed(src, 'command') then
         if QBCore.Functions.IsOptin(src) then
-            TriggerClientEvent('chat:addMessage', src, Lang:t("info.staffchat")..name, 'error', msg)
+            TriggerClientEvent('chat:addMessage', src, {
+                color = {255, 0, 0},
+                multiline = true,
+                args = {Lang:t("info.staffchat")..name, msg}
+            })
         end
     end
 end)
@@ -434,7 +405,7 @@ QBCore.Commands.Add('kickall', Lang:t("commands.kick_all"), {}, false, function(
         for k, v in pairs(QBCore.Functions.GetPlayers()) do
             local Player = QBCore.Functions.GetPlayer(v)
             if Player then
-                DropPlayer(Player.PlayerData.source, Lang:t("info.server_restart") .. QBCore.Config.Server.discord)
+                DropPlayer(Player.PlayerData.source, Lang:t("info.server_restart") .. QBCore.Config.Server.Discord)
             end
         end
     end
@@ -451,3 +422,29 @@ QBCore.Commands.Add('setammo', Lang:t("commands.ammo_amount_set"), {{name='amoun
         TriggerClientEvent('qb-weapons:client:SetWeaponAmmoManual', src, 'current', amount)
     end
 end, 'admin')
+
+CreateThread(function()
+    while true do
+        local tempPlayers = {}
+        for k, v in pairs(QBCore.Functions.GetPlayers()) do
+            local targetped = GetPlayerPed(v)
+            local ped = QBCore.Functions.GetPlayer(v)
+            tempPlayers[#tempPlayers + 1] = {
+                name = (ped.PlayerData.charinfo.firstname or '') .. ' ' .. (ped.PlayerData.charinfo.lastname or '') .. ' | (' .. (GetPlayerName(v) or '') .. ')',
+                id = v,
+                coords = GetEntityCoords(targetped),
+                cid = ped.PlayerData.charinfo.firstname .. ' ' .. ped.PlayerData.charinfo.lastname,
+                citizenid = ped.PlayerData.citizenid,
+                sources = GetPlayerPed(ped.PlayerData.source),
+                sourceplayer = ped.PlayerData.source
+
+            }
+        end
+        -- Sort players list by source ID (1,2,3,4,5, etc) --
+        table.sort(tempPlayers, function(a, b)
+            return a.id < b.id
+        end)
+        players = tempPlayers
+        Wait(1500)
+    end
+end)
