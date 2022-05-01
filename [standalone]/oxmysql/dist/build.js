@@ -14826,7 +14826,7 @@ var require_mysql2 = __commonJS({
 });
 
 // src/config/index.ts
-var resourceName, mysql_debug, mysql_ui, mysql_slow_query_warning, mysql_connection_string, mysql_transaction_isolation_level, connectionOptions;
+var resourceName, mysql_debug, mysql_ui, mysql_slow_query_warning, mysql_connection_string, mysql_transaction_isolation_level;
 var init_config = __esm({
   "src/config/index.ts"() {
     resourceName = GetCurrentResourceName();
@@ -14848,16 +14848,6 @@ var init_config = __esm({
         default:
           return `${query} READ COMMITTED`;
       }
-    })();
-    connectionOptions = (() => {
-      if (mysql_connection_string.includes("mysql://"))
-        return { uri: mysql_connection_string };
-      const options = mysql_connection_string.replace(/(?:host(?:name)|ip|server|data\s?source|addr(?:ess)?)=/gi, "host=").replace(/(?:user\s?(?:id|name)?|uid)=/gi, "user=").replace(/(?:pwd|pass)=/gi, "password=").replace(/(?:db)=/gi, "database=").split(";").reduce((connectionInfo, parameter) => {
-        const [key, value] = parameter.split("=");
-        connectionInfo[key] = value;
-        return connectionInfo;
-      }, {});
-      return options;
     })();
   }
 });
@@ -21529,6 +21519,32 @@ var typeCast = (field, next) => {
 };
 
 // src/database/index.ts
+var parseUri = (connectionString) => {
+  const splitMatchGroups = connectionString.match(new RegExp("^(?:([^:/?#.]+):)?(?://(?:([^/?#]*)@)?([\\w\\d\\-\\u0100-\\uffff.%]*)(?::([0-9]+))?)?([^?#]+)?(?:\\?([^#]*))?$"));
+  if (!splitMatchGroups)
+    throw new Error(`mysql_connection_string structure was invalid (${connectionString})`);
+  const authTarget = splitMatchGroups[2] ? splitMatchGroups[2].split(":") : [];
+  const options = __spreadValues({
+    user: authTarget[0] || void 0,
+    password: authTarget[1] || void 0,
+    host: splitMatchGroups[3],
+    port: parseInt(splitMatchGroups[4]),
+    database: splitMatchGroups[5].replace(/^\/+/, "")
+  }, splitMatchGroups[6] && splitMatchGroups[6].split("&").reduce((connectionInfo, parameter) => {
+    const [key, value] = parameter.split("=");
+    connectionInfo[key] = value;
+    return connectionInfo;
+  }, {}));
+  return options;
+};
+var connectionOptions = (() => {
+  const options = mysql_connection_string.includes("mysql://") ? parseUri(mysql_connection_string) : mysql_connection_string.replace(/(?:host(?:name)|ip|server|data\s?source|addr(?:ess)?)=/gi, "host=").replace(/(?:user\s?(?:id|name)?|uid)=/gi, "user=").replace(/(?:pwd|pass)=/gi, "password=").replace(/(?:db)=/gi, "database=").split(";").reduce((connectionInfo, parameter) => {
+    const [key, value] = parameter.split("=");
+    connectionInfo[key] = value;
+    return connectionInfo;
+  }, {});
+  return options;
+})();
 var pool;
 var serverReady = false;
 setTimeout(() => {
@@ -21725,13 +21741,22 @@ ${`${query} ${JSON.stringify(parameters)}`}`);
 var isTransactionQuery = (query) => query.query !== void 0;
 var parseTransaction = (invokingResource, queries, parameters, cb) => {
   if (!Array.isArray(queries))
-    throw new Error(`Transaction queries must be array type`);
+    throw new Error(`Transaction queries must be array, received '${typeof queries}'.`);
   if (cb && typeof cb !== "function")
     cb = void 0;
   if (parameters && typeof parameters === "function")
     cb = parameters;
   if (parameters === null || parameters === void 0 || typeof parameters === "function")
     parameters = [];
+  if (queries[0][0]) {
+    const transactions2 = queries.map((query) => {
+      if (typeof query[1] !== "object")
+        throw new Error(`Transaction parameters must be array or object, received '${typeof query[1]}'.`);
+      const [parsedQuery, parsedParameters] = parseArguments(invokingResource, query[0], query[1]);
+      return { query: parsedQuery, params: parsedParameters };
+    });
+    return { transactions: transactions2, cb };
+  }
   const transactions = queries.map((query) => {
     const [parsedQuery, parsedParameters] = parseArguments(invokingResource, isTransactionQuery(query) ? query.query : query, isTransactionQuery(query) ? query.parameters || query.values : parameters || []);
     return { query: parsedQuery, params: parsedParameters };
@@ -21823,8 +21848,6 @@ var rawExecute = async (invokingResource, query, parameters, cb) => {
   await scheduleTick();
   const connection = await pool.promise().getConnection();
   try {
-    if (type !== null)
-      await connection.beginTransaction();
     const placeholders = query.split("?").length - 1;
     for (let values of parameters) {
       const executionTime = process.hrtime();
@@ -21841,11 +21864,7 @@ var rawExecute = async (invokingResource, query, parameters, cb) => {
       logQuery(invokingResource, query, process.hrtime(executionTime)[1] / 1e6, values);
     }
     single = response.length === 1;
-    if (type !== null)
-      connection.commit();
   } catch (err) {
-    if (connection && type !== null)
-      connection.rollback();
     throw new Error(`${invokingResource} was unable to execute a query!
 	${err.message}
 	${err.sql}`);
