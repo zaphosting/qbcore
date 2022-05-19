@@ -44,12 +44,11 @@ local function DamageRandomComponent()
 	local dmgFctr = math.random() + math.random(0, 2)
 	local randomComponent = DamageComponents[math.random(1, #DamageComponents)]
 	local randomDamage = (math.random() + math.random(0, 1)) * dmgFctr
-	--exports['qb-vehicletuning']:SetVehicleStatus(QBCore.Functions.GetPlate(vehicle), randomComponent, exports['qb-vehicletuning']:GetVehicleStatus(QBCore.Functions.GetPlate(vehicle), randomComponent) - randomDamage)
+	exports['qb-mechanicjob']:SetVehicleStatus(QBCore.Functions.GetPlate(vehicle), randomComponent, exports['qb-mechanicjob']:GetVehicleStatus(QBCore.Functions.GetPlate(vehicle), randomComponent) - randomDamage)
 end
 
-local function CleanVehicle(vehicle)
+local function CleanVehicle(veh)
 	local ped = PlayerPedId()
-	local pos = GetEntityCoords(ped)
 	TaskStartScenarioInPlace(ped, "WORLD_HUMAN_MAID_CLEAN", 0, true)
 	QBCore.Functions.Progressbar("cleaning_vehicle", Lang:t("progress.clean_veh"), math.random(10000, 20000), false, true, {
 		disableMovement = true,
@@ -58,10 +57,10 @@ local function CleanVehicle(vehicle)
 		disableCombat = true,
 	}, {}, {}, {}, function() -- Done
 		QBCore.Functions.Notify(Lang:t("success.cleaned_veh"))
-		SetVehicleDirtLevel(vehicle, 0.1)
-        SetVehicleUndriveable(vehicle, false)
-		WashDecalsFromVehicle(vehicle, 1.0)
-		TriggerServerEvent('qb-vehiclefailure:server:removewashingkit', vehicle)
+		SetVehicleDirtLevel(veh, 0.1)
+		SetVehicleUndriveable(veh, false)
+		WashDecalsFromVehicle(veh, 1.0)
+		TriggerServerEvent('qb-vehiclefailure:server:removewashingkit', veh)
 		TriggerEvent('inventory:client:ItemBox', QBCore.Shared.Items["cleaningkit"], "remove")
 		ClearAllPedProps(ped)
 		ClearPedTasks(ped)
@@ -76,11 +75,11 @@ local function IsBackEngine(vehModel)
 	if BackEngineVehicles[vehModel] then return true else return false end
 end
 
-local function RepairVehicleFull(vehicle)
-	if (IsBackEngine(GetEntityModel(vehicle))) then
-        SetVehicleDoorOpen(vehicle, 5, false, false)
+local function RepairVehicleFull(veh)
+	if (IsBackEngine(GetEntityModel(veh))) then
+        SetVehicleDoorOpen(veh, 5, false, false)
     else
-        SetVehicleDoorOpen(vehicle, 4, false, false)
+        SetVehicleDoorOpen(veh, 4, false, false)
     end
 	
 	QBCore.Functions.Progressbar("repair_vehicle", Lang:t("progress.repair_veh"), math.random(20000, 30000), false, true, {
@@ -95,35 +94,35 @@ local function RepairVehicleFull(vehicle)
 	}, {}, {}, function() -- Done
 		StopAnimTask(PlayerPedId(), "mini@repair", "fixing_a_player", 1.0)
 		QBCore.Functions.Notify(Lang:t("success.repaired_veh"))
-		SetVehicleEngineHealth(vehicle, 1000.0)
-		SetVehicleEngineOn(vehicle, true, false)
-		SetVehicleTyreFixed(vehicle, 0)
-		SetVehicleTyreFixed(vehicle, 1)
-		SetVehicleTyreFixed(vehicle, 2)
-		SetVehicleTyreFixed(vehicle, 3)
-		SetVehicleTyreFixed(vehicle, 4)
-		if (IsBackEngine(GetEntityModel(vehicle))) then
-			SetVehicleDoorShut(vehicle, 5, false)
+		SetVehicleEngineHealth(veh, 1000.0)
+		SetVehicleEngineOn(veh, true, false)
+		SetVehicleTyreFixed(veh, 0)
+		SetVehicleTyreFixed(veh, 1)
+		SetVehicleTyreFixed(veh, 2)
+		SetVehicleTyreFixed(veh, 3)
+		SetVehicleTyreFixed(veh, 4)
+		if (IsBackEngine(GetEntityModel(veh))) then
+			SetVehicleDoorShut(veh, 5, false)
 		else
-			SetVehicleDoorShut(vehicle, 4, false)
+			SetVehicleDoorShut(veh, 4, false)
 		end
 		TriggerServerEvent('qb-vehiclefailure:removeItem', "advancedrepairkit")
 	end, function() -- Cancel
 		StopAnimTask(PlayerPedId(), "mini@repair", "fixing_a_player", 1.0)
 		QBCore.Functions.Notify(Lang:t("error.failed_notification"), "error")
-		if (IsBackEngine(GetEntityModel(vehicle))) then
-			SetVehicleDoorShut(vehicle, 5, false)
+		if (IsBackEngine(GetEntityModel(veh))) then
+			SetVehicleDoorShut(veh, 5, false)
 		else
-			SetVehicleDoorShut(vehicle, 4, false)
+			SetVehicleDoorShut(veh, 4, false)
 		end
 	end)
 end
 
-local function RepairVehicle(vehicle)
-	if (IsBackEngine(GetEntityModel(vehicle))) then
-        SetVehicleDoorOpen(vehicle, 5, false, false)
+local function RepairVehicle(veh)
+	if (IsBackEngine(GetEntityModel(veh))) then
+        SetVehicleDoorOpen(veh, 5, false, false)
     else
-        SetVehicleDoorOpen(vehicle, 4, false, false)
+        SetVehicleDoorOpen(veh, 4, false, false)
     end
 	QBCore.Functions.Progressbar("repair_vehicle", Lang:t("progress.repair_veh"), math.random(10000, 20000), false, true, {
 		disableMovement = true,
@@ -137,26 +136,26 @@ local function RepairVehicle(vehicle)
 	}, {}, {}, function() -- Done
 		StopAnimTask(PlayerPedId(), "mini@repair", "fixing_a_player", 1.0)
 		QBCore.Functions.Notify(Lang:t("success.repaired_veh"))
-		SetVehicleEngineHealth(vehicle, 500.0)
-		SetVehicleEngineOn(vehicle, true, false)
-		SetVehicleTyreFixed(vehicle, 0)
-		SetVehicleTyreFixed(vehicle, 1)
-		SetVehicleTyreFixed(vehicle, 2)
-		SetVehicleTyreFixed(vehicle, 3)
-		SetVehicleTyreFixed(vehicle, 4)
-		if (IsBackEngine(GetEntityModel(vehicle))) then
-			SetVehicleDoorShut(vehicle, 5, false)
+		SetVehicleEngineHealth(veh, 500.0)
+		SetVehicleEngineOn(veh, true, false)
+		SetVehicleTyreFixed(veh, 0)
+		SetVehicleTyreFixed(veh, 1)
+		SetVehicleTyreFixed(veh, 2)
+		SetVehicleTyreFixed(veh, 3)
+		SetVehicleTyreFixed(veh, 4)
+		if (IsBackEngine(GetEntityModel(veh))) then
+			SetVehicleDoorShut(veh, 5, false)
 		else
-			SetVehicleDoorShut(vehicle, 4, false)
+			SetVehicleDoorShut(veh, 4, false)
 		end
 		TriggerServerEvent('qb-vehiclefailure:removeItem', "repairkit")
 	end, function() -- Cancel
 		StopAnimTask(PlayerPedId(), "mini@repair", "fixing_a_player", 1.0)
 		QBCore.Functions.Notify(Lang:t("error.failed_notification"), "error")
-		if (IsBackEngine(GetEntityModel(vehicle))) then
-			SetVehicleDoorShut(vehicle, 5, false)
+		if (IsBackEngine(GetEntityModel(veh))) then
+			SetVehicleDoorShut(veh, 5, false)
 		else
-			SetVehicleDoorShut(vehicle, 4, false)
+			SetVehicleDoorShut(veh, 4, false)
 		end
 	end)
 end
@@ -189,11 +188,11 @@ local function IsNearMechanic()
 end
 
 local function fscale(inputValue, originalMin, originalMax, newBegin, newEnd, curve)
-	local OriginalRange = 0.0
-	local NewRange = 0.0
-	local zeroRefCurVal = 0.0
-	local normalizedCurVal = 0.0
-	local rangedValue = 0.0
+	local OriginalRange
+	local NewRange
+	local zeroRefCurVal
+	local normalizedCurVal
+	local rangedValue
 	local invFlag = 0
 
 	if (curve > 10.0) then curve = 10.0 end
@@ -259,31 +258,29 @@ end
 -- Events
 
 RegisterNetEvent('qb-vehiclefailure:client:RepairVehicle', function()
-	local vehicle = QBCore.Functions.GetClosestVehicle()
-	local engineHealth = GetVehicleEngineHealth(vehicle) --This is to prevent people from "repairing" a vehicle and setting engine health lower than what the vehicles engine health was before repairing.
-	if vehicle ~= nil and vehicle ~= 0 and engineHealth < 500 then
+	local veh = QBCore.Functions.GetClosestVehicle()
+	local engineHealth = GetVehicleEngineHealth(veh) --This is to prevent people from "repairing" a vehicle and setting engine health lower than what the vehicles engine health was before repairing.
+	if veh ~= nil and veh ~= 0 and engineHealth < 500 then
 		local ped = PlayerPedId()
 		local pos = GetEntityCoords(ped)
-		local vehpos = GetEntityCoords(vehicle)
+		local vehpos = GetEntityCoords(veh)
 		if #(pos - vehpos) < 5.0 and not IsPedInAnyVehicle(ped) then
-			local drawpos = GetOffsetFromEntityInWorldCoords(vehicle, 0, 2.5, 0)
-			if (IsBackEngine(GetEntityModel(vehicle))) then
-				drawpos = GetOffsetFromEntityInWorldCoords(vehicle, 0, -2.5, 0)
+			local drawpos = GetOffsetFromEntityInWorldCoords(veh, 0, 2.5, 0)
+			if (IsBackEngine(GetEntityModel(veh))) then
+				drawpos = GetOffsetFromEntityInWorldCoords(veh, 0, -2.5, 0)
 			end
 			if #(pos - drawpos) < 2.0 and not IsPedInAnyVehicle(ped) then
-				RepairVehicle(vehicle)
-			else
-				ShowEnginePos = true
+				RepairVehicle(veh)
 			end
-    	else
-      		if #(pos - vehpos) > 4.9 then
-       			QBCore.Functions.Notify(Lang:t("error.out_range_veh"), "error")
-      		else
-       			QBCore.Functions.Notify(Lang:t("error.inside_veh"), "error")
-      		end
+		else
+			if #(pos - vehpos) > 4.9 then
+				QBCore.Functions.Notify(Lang:t("error.out_range_veh"), "error")
+			else
+				QBCore.Functions.Notify(Lang:t("error.inside_veh"), "error")
+			end
 		end
-  	else
-		if vehicle == nil or vehicle == 0 then
+	else
+		if veh == nil or veh == 0 then
 			QBCore.Functions.Notify(Lang:t("error.not_near_veh"), "error")
 		else
 			QBCore.Functions.Notify(Lang:t("error.healthy_veh"), "error")
@@ -298,42 +295,40 @@ RegisterNetEvent('qb-vehiclefailure:client:SyncWash', function(veh)
 end)
 
 RegisterNetEvent('qb-vehiclefailure:client:CleanVehicle', function()
-	local vehicle = QBCore.Functions.GetClosestVehicle()
-	if vehicle ~= nil and vehicle ~= 0 then
+	local veh = QBCore.Functions.GetClosestVehicle()
+	if veh ~= nil and veh ~= 0 then
 		local ped = PlayerPedId()
 		local pos = GetEntityCoords(ped)
-		local vehpos = GetEntityCoords(vehicle)
+		local vehpos = GetEntityCoords(veh)
 		if #(pos - vehpos) < 3.0 and not IsPedInAnyVehicle(ped) then
-			CleanVehicle(vehicle)
+			CleanVehicle(veh)
 		end
 	end
 end)
 
 RegisterNetEvent('qb-vehiclefailure:client:RepairVehicleFull', function()
-	local vehicle = QBCore.Functions.GetClosestVehicle()
-	if vehicle ~= nil and vehicle ~= 0 then
+	local veh = QBCore.Functions.GetClosestVehicle()
+	if veh ~= nil and veh ~= 0 then
 		local ped = PlayerPedId()
 		local pos = GetEntityCoords(ped)
-		local vehpos = GetEntityCoords(vehicle)
+		local vehpos = GetEntityCoords(veh)
 		if #(pos - vehpos) < 5.0 and not IsPedInAnyVehicle(ped) then
-			local drawpos = GetOffsetFromEntityInWorldCoords(vehicle, 0, 2.5, 0)
-			if (IsBackEngine(GetEntityModel(vehicle))) then
-				drawpos = GetOffsetFromEntityInWorldCoords(vehicle, 0, -2.5, 0)
+			local drawpos = GetOffsetFromEntityInWorldCoords(veh, 0, 2.5, 0)
+			if (IsBackEngine(GetEntityModel(veh))) then
+				drawpos = GetOffsetFromEntityInWorldCoords(veh, 0, -2.5, 0)
 			end
 			if #(pos - drawpos) < 2.0 and not IsPedInAnyVehicle(ped) then
-				RepairVehicleFull(vehicle)
-			else
-				ShowEnginePos = true
+				RepairVehicleFull(veh)
 			end
-    	else
-      		if #(pos - vehpos) > 4.9 then
-        		QBCore.Functions.Notify(Lang:t("error.out_range_veh"), "error")
-      		else
-        		QBCore.Functions.Notify(Lang:t("error.inside_veh"), "error")
-      		end
+		else
+			if #(pos - vehpos) > 4.9 then
+				QBCore.Functions.Notify(Lang:t("error.out_range_veh"), "error")
+			else
+				QBCore.Functions.Notify(Lang:t("error.inside_veh"), "error")
+			end
 		end
-  	else
-    	QBCore.Functions.Notify(Lang:t("error.not_near_veh"), "error")
+	else
+		QBCore.Functions.Notify(Lang:t("error.not_near_veh"), "error")
 	end
 end)
 
@@ -383,7 +378,7 @@ RegisterNetEvent('iens:repair', function()
 				QBCore.Functions.Notify(Lang:t(('fix_message_%s'):format(fixMessagePos)))
 				fixMessagePos = fixMessagePos + 1
 				if fixMessagePos > repairCfg.fixMessageCount then fixMessagePos = 1 end
-			else 
+			else
 				QBCore.Functions.Notify(Lang:t("error.veh_damaged"))
 			end
 		else
@@ -638,7 +633,6 @@ CreateThread(function()
 			end
 			if healthBodyNew ~= healthBodyCurrent then
 				SetVehicleBodyHealth(vehicle, healthBodyNew)
-				local dmgFactr = (healthBodyCurrent - healthBodyNew)
 				DamageRandomComponent()
 			end
 			if healthPetrolTankNew ~= healthPetrolTankCurrent then

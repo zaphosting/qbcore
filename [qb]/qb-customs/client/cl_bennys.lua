@@ -27,8 +27,6 @@ local originalNeonColourB = nil
 local originalXenonColour = nil
 local originalOldLivery = nil
 local originalPlateIndex = nil
-local originalXenonState = nil
-local originalTurboState = nil
 local attemptingPurchase = false
 local isPurchaseSuccessful = false
 local radialMenuItemId = nil
@@ -228,16 +226,9 @@ function GetCurrentTurboState()
     return isEnabled and 0 or -1
 end
 
-function GetCurrentExtraState(extra)
-    local plyPed = PlayerPedId()
-    local plyVeh = GetVehiclePedIsIn(plyPed, false)
-    return IsVehicleExtraTurnedOn(plyVeh, extra)
-end
-
 function CheckValidMods(category, id, wheelType)
     local plyPed = PlayerPedId()
     local plyVeh = GetVehiclePedIsIn(plyPed, false)
-    local tempMod = GetVehicleMod(plyVeh, id)
     local tempWheel = GetVehicleMod(plyVeh, 23)
     local tempWheelType = GetVehicleWheelType(plyVeh)
     local tempWheelCustom = GetVehicleModVariation(plyVeh, 23)
@@ -250,7 +241,7 @@ function CheckValidMods(category, id, wheelType)
     end
 
     if id == 14 then
-        for k, v in pairs(vehicleCustomisation) do
+        for k, _ in pairs(vehicleCustomisation) do
             if vehicleCustomisation[k].category == category then
                 hornNames = vehicleCustomisation[k].hornNames
 
@@ -340,7 +331,6 @@ end
 function RestoreOriginalWheels()
     local plyPed = PlayerPedId()
     local plyVeh = GetVehiclePedIsIn(plyPed, false)
-    local doesHaveCustomWheels = GetVehicleModVariation(plyVeh, 23)
 
     SetVehicleWheelType(plyVeh, originalWheelType)
 
@@ -401,18 +391,6 @@ function RestorePlateIndex()
     SetVehicleNumberPlateTextIndex(plyVeh, originalPlateIndex)
 end
 
-function RestoreXenonState()
-    local plyPed = PlayerPedId()
-    local plyVeh = GetVehiclePedIsIn(plyPed, false)
-    ToggleVehicleMod(plyVeh, 22, originalXenonState)
-end
-
-function RestoreTurboState()
-    local plyPed = PlayerPedId()
-    local plyVeh = GetVehiclePedIsIn(plyPed, false)
-    ToggleVehicleMod(plyVeh, 18, originalTurboState)
-end
-
 function PreviewMod(categoryID, modID)
     local plyPed = PlayerPedId()
     local plyVeh = GetVehiclePedIsIn(plyPed, false)
@@ -441,29 +419,6 @@ function PreviewWindowTint(windowTintID)
 
     SetVehicleWindowTint(plyVeh, windowTintID)
 end
-
-function PreviewXenonState(state)
-    local plyPed = PlayerPedId()
-    local plyVeh = GetVehiclePedIsIn(plyPed, false)
-
-    if originalXenonState == nil then
-        originalXenonState = IsToggleModOn(plyVeh, 22)
-    end
-
-    ToggleVehicleMod(plyVeh, 22, state)
-end
-
-function PreviewTurboState(state)
-    local plyPed = PlayerPedId()
-    local plyVeh = GetVehiclePedIsIn(plyPed, false)
-
-    if originalTurboState == nil then
-        originalTurboState = IsToggleModOn(plyVeh, 18)
-    end
-
-    ToggleVehicleMod(plyVeh, 18, state)
-end
-
 
 function PreviewColour(paintType, paintCategory, paintID)
     local plyPed = PlayerPedId()
@@ -580,8 +535,7 @@ function ApplyMod(categoryID, modID)
     local plyVeh = GetVehiclePedIsIn(plyPed, false)
 
     if categoryID == 18 then
-        ToggleVehicleMod(plyVeh, categoryID, modID)
-        originalTurboState = modID
+        ToggleVehicleMod(plyVeh, categoryID, modID+1)
     elseif categoryID == 11 or categoryID == 12 or categoryID== 13 or categoryID == 15 or categoryID == 16 then --Performance Upgrades
         originalCategory = categoryID
         originalMod = modID
@@ -820,7 +774,7 @@ function EnterLocation(override)
 
     local plyPed = PlayerPedId()
     local plyVeh = GetVehiclePedIsIn(plyPed, false)
-    local isMotorcycle = false
+    local isMotorcycle
 
     if GetVehicleClass(plyVeh) == 8 then --Motorcycle
         isMotorcycle = true
@@ -985,7 +939,7 @@ CreateThread(function()
                 maxZ = spot.maxZ,
             })
 
-            newSpot:onPlayerInOut(function(isPointInside, point)
+            newSpot:onPlayerInOut(function(isPointInside, _)
                 if isPointInside then
                     CustomsData = {
                         ['location'] = location,

@@ -23,7 +23,7 @@ function resetVeh(veh)
     SetVehicleHandlingFloat(veh, "CHandlingData", "fBrakeBiasFront", 1.0)
 end
 
-RegisterNUICallback('save', function(data)
+RegisterNUICallback('save', function(data, cb)
     QBCore.Functions.TriggerCallback('qb-tunerchip:server:HasChip', function(HasChip)
         if HasChip then
             local ped = PlayerPedId()
@@ -33,6 +33,7 @@ RegisterNUICallback('save', function(data)
 
             TriggerServerEvent('qb-tunerchip:server:TuneStatus', QBCore.Functions.GetPlate(veh), true)
         end
+        cb('ok')
     end)
 end)
 
@@ -64,11 +65,12 @@ RegisterNUICallback('checkItem', function(data, cb)
     end, data.item)
 end)
 
-RegisterNUICallback('reset', function(data)
+RegisterNUICallback('reset', function(_, cb)
     local ped = PlayerPedId()
     local veh = GetVehiclePedIsUsing(ped)
     resetVeh(veh)
     QBCore.Functions.Notify('TunerChip v1.05: Vehicle has been reset!', 'error')
+    cb("ok")
 end)
 
 RegisterNetEvent('qb-tunerchip:client:openChip', function()
@@ -97,9 +99,10 @@ RegisterNetEvent('qb-tunerchip:client:openChip', function()
     end
 end)
 
-RegisterNUICallback('exit', function()
+RegisterNUICallback('exit', function(_, cb)
     openTunerLaptop(false)
     SetNuiFocus(false, false)
+    cb('ok')
 end)
 
 local LastRainbowNeonColor = 0
@@ -137,7 +140,7 @@ local RainbowNeonColors = {
     },
 }
 
-RegisterNUICallback('saveNeon', function(data)
+RegisterNUICallback('saveNeon', function(data, cb)
     QBCore.Functions.TriggerCallback('qb-tunerchip:server:HasChip', function(HasChip)
         if HasChip then
             if not data.rainbowEnabled then
@@ -200,13 +203,14 @@ RegisterNUICallback('saveNeon', function(data)
                 end
             end
         end
+        cb('ok')
     end)
 end)
 
 local RainbowHeadlight = false
 local RainbowHeadlightValue = 0
 
-RegisterNUICallback('saveHeadlights', function(data)
+RegisterNUICallback('saveHeadlights', function(data, cb)
     QBCore.Functions.TriggerCallback('qb-tunerchip:server:HasChip', function(HasChip)
         if HasChip then
             if data.rainbowEnabled then
@@ -245,6 +249,7 @@ RegisterNUICallback('saveHeadlights', function(data)
                 SetVehicleHeadlightsColour(veh, value)
             end
         end
+        cb('ok')
     end)
 end)
 
@@ -261,14 +266,8 @@ RegisterNUICallback('SetStancer', function(data, cb)
     local fRotation = data.fRotation * 100 / 1000
     local rOffset = data.rOffset * 100 / 1000
     local rRotation = data.rRotation * 100 / 1000
-
-    print(fOffset)
-    print(fRotation)
-    print(rOffset)
-    print(rRotation)
-
     local ped = PlayerPedId()
     local veh = GetVehiclePedIsIn(ped)
-
     exports["vstancer"]:SetWheelPreset(veh, -fOffset, -fRotation, -rOffset, -rRotation)
+    cb("ok")
 end)

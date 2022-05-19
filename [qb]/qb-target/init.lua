@@ -32,7 +32,19 @@ Config.EnableOutline = false
 -- Whether to have the target as a toggle or not
 Config.Toggle = false
 
--- The color of the outline in rgb, the first value is red, the second value is green, the third value is blue and the last value is alpha. Here is a link to a color picker to get these values: https://htmlcolorcodes.com/color-picker/
+-- Draw a Sprite on the center of a PolyZone to hint where it's located
+Config.DrawSprite = false
+
+-- The default distance to draw the Sprite
+Config.DrawDistance = 10.0
+
+-- The color of the sprite in rgb, the first value is red, the second value is green, the third value is blue and the last value is alpha (opacity). Here is a link to a color picker to get these values: https://htmlcolorcodes.com/color-picker/
+Config.DrawColor = {255, 255, 255, 255}
+
+-- The color of the sprite in rgb when the PolyZone is targeted, the first value is red, the second value is green, the third value is blue and the last value is alpha (opacity). Here is a link to a color picker to get these values: https://htmlcolorcodes.com/color-picker/
+Config.SuccessDrawColor = {30, 144, 255, 255}
+
+-- The color of the outline in rgb, the first value is red, the second value is green, the third value is blue and the last value is alpha (opacity). Here is a link to a color picker to get these values: https://htmlcolorcodes.com/color-picker/
 Config.OutlineColor = {255, 255, 255, 255}
 
 -- Enable default options (Toggling vehicle doors)
@@ -98,7 +110,7 @@ Config.Peds = {
 -------------------------------------------------------------------------------
 local function JobCheck() return true end
 local function GangCheck() return true end
-local function ItemCount() return true end
+local function ItemCheck() return true end
 local function CitizenCheck() return true end
 
 CreateThread(function()
@@ -131,10 +143,33 @@ CreateThread(function()
 		local QBCore = exports['qb-core']:GetCoreObject()
 		local PlayerData = QBCore.Functions.GetPlayerData()
 
-		ItemCount = function(item)
+		ItemCheck = function(items)
+			local isTable = type(items) == 'table'
+			local isArray = isTable and table.type(items) == 'array' or false
+			local finalcount = 0
+			local count = 0
+			if isTable then for _ in pairs(items) do finalcount += 1 end end
 			for _, v in pairs(PlayerData.items) do
-				if v.name == item then
-					return true
+				if isTable then
+					if isArray then -- Table expected in this format {'itemName1', 'itemName2', 'etc'}
+						for _, item in pairs(items) do
+							if v and v.name == item then
+								count += 1
+							end
+						end
+					else -- Table expected in this format {['itemName'] = amount}
+						local itemAmount = items[v.name]
+						if itemAmount and v and v.amount >= itemAmount then
+							count += 1
+						end
+					end
+					if count == finalcount then -- This is to make sure it checks all items in the table instead of only one of the items
+						return true
+					end
+				else -- When items is a string
+					if v and v.name == items then
+						return true
+					end
 				end
 			end
 			return false
@@ -196,7 +231,7 @@ function CheckOptions(data, entity, distance)
 	if distance and data.distance and distance > data.distance then return false end
 	if data.job and not JobCheck(data.job) then return false end
 	if data.gang and not GangCheck(data.gang) then return false end
-	if data.item and not ItemCount(data.item) then return false end
+	if data.item and not ItemCheck(data.item) then return false end
 	if data.citizenid and not CitizenCheck(data.citizenid) then return false end
 	if data.canInteract and not data.canInteract(entity, distance, data) then return false end
 	return true

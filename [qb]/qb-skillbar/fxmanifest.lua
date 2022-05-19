@@ -15,10 +15,6 @@ files {
     'html/VerdanaBold.ttf'
 }
 
-exports {
-    'GetSkillbarObject'
-}
-
 dependencies {
     'qb-core'
 }

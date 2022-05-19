@@ -6,7 +6,7 @@ local VehicleDrivingDistance = {}
 -- Functions
 
 function IsVehicleOwned(plate)
-    local result = MySQL.Sync.fetchScalar('SELECT 1 from player_vehicles WHERE plate = ?', {plate})
+    local result = MySQL.scalar.await('SELECT 1 from player_vehicles WHERE plate = ?', {plate})
     if result then
         return true
     else
@@ -16,7 +16,7 @@ end
 
 function GetVehicleStatus(plate)
     local retval = nil
-    local result = MySQL.Sync.fetchAll('SELECT status FROM player_vehicles WHERE plate = ?', {plate})
+    local result = MySQL.query.await('SELECT status FROM player_vehicles WHERE plate = ?', {plate})
     if result[1] ~= nil then
         retval = result[1].status ~= nil and json.decode(result[1].status) or nil
     end
@@ -37,13 +37,13 @@ end
 
 -- Callbacks
 
-QBCore.Functions.CreateCallback('qb-vehicletuning:server:GetDrivingDistances', function(source, cb)
+QBCore.Functions.CreateCallback('qb-vehicletuning:server:GetDrivingDistances', function(_, cb)
     cb(VehicleDrivingDistance)
 end)
 
-QBCore.Functions.CreateCallback('qb-vehicletuning:server:IsVehicleOwned', function(source, cb, plate)
+QBCore.Functions.CreateCallback('qb-vehicletuning:server:IsVehicleOwned', function(_, cb, plate)
     local retval = false
-    local result = MySQL.Sync.fetchScalar('SELECT 1 from player_vehicles WHERE plate = ?', {plate})
+    local result = MySQL.scalar.await('SELECT 1 from player_vehicles WHERE plate = ?', {plate})
     if result then
         retval = true
     end
@@ -51,13 +51,13 @@ QBCore.Functions.CreateCallback('qb-vehicletuning:server:IsVehicleOwned', functi
 end)
 
 
-QBCore.Functions.CreateCallback('qb-vehicletuning:server:GetAttachedVehicle', function(source, cb)
+QBCore.Functions.CreateCallback('qb-vehicletuning:server:GetAttachedVehicle', function(_, cb)
     cb(Config.Plates)
 end)
 
-QBCore.Functions.CreateCallback('qb-vehicletuning:server:IsMechanicAvailable', function(source, cb)
+QBCore.Functions.CreateCallback('qb-vehicletuning:server:IsMechanicAvailable', function(_, cb)
     local amount = 0
-    for k, v in pairs(QBCore.Functions.GetPlayers()) do
+    for _, v in pairs(QBCore.Functions.GetPlayers()) do
         local Player = QBCore.Functions.GetPlayer(v)
         if Player ~= nil then
             if (Player.PlayerData.job.name == "mechanic" and Player.PlayerData.job.onduty) then
@@ -68,7 +68,7 @@ QBCore.Functions.CreateCallback('qb-vehicletuning:server:IsMechanicAvailable', f
     cb(amount)
 end)
 
-QBCore.Functions.CreateCallback('qb-vehicletuning:server:GetStatus', function(source, cb, plate)
+QBCore.Functions.CreateCallback('qb-vehicletuning:server:GetStatus', function(_, cb, plate)
     if VehicleStatus[plate] ~= nil and next(VehicleStatus[plate]) ~= nil then
         cb(VehicleStatus[plate])
     else
@@ -81,7 +81,7 @@ end)
 
 RegisterNetEvent('qb-vehicletuning:server:SaveVehicleProps', function(vehicleProps)
     if IsVehicleOwned(vehicleProps.plate) then
-        MySQL.Async.execute('UPDATE player_vehicles SET mods = ? WHERE plate = ?',
+        MySQL.update('UPDATE player_vehicles SET mods = ? WHERE plate = ?',
             {json.encode(vehicleProps), vehicleProps.plate})
     end
 end)
@@ -126,9 +126,9 @@ end)
 RegisterNetEvent('qb-vehicletuning:server:UpdateDrivingDistance', function(amount, plate)
     VehicleDrivingDistance[plate] = amount
     TriggerClientEvent('qb-vehicletuning:client:UpdateDrivingDistance', -1, VehicleDrivingDistance[plate], plate)
-    local result = MySQL.Sync.fetchAll('SELECT plate FROM player_vehicles WHERE plate = ?', {plate})
+    local result = MySQL.query.await('SELECT plate FROM player_vehicles WHERE plate = ?', {plate})
     if result[1] ~= nil then
-        MySQL.Async.execute('UPDATE player_vehicles SET drivingdistance = ? WHERE plate = ?', {amount, plate})
+        MySQL.update('UPDATE player_vehicles SET drivingdistance = ? WHERE plate = ?', {amount, plate})
     end
 end)
 
@@ -176,7 +176,7 @@ end)
 
 RegisterNetEvent('vehiclemod:server:saveStatus', function(plate)
     if VehicleStatus[plate] ~= nil then
-        MySQL.Async.execute('UPDATE player_vehicles SET status = ? WHERE plate = ?',
+        MySQL.update('UPDATE player_vehicles SET status = ? WHERE plate = ?',
             { json.encode(VehicleStatus[plate]), plate }
         )
     end
@@ -202,7 +202,7 @@ RegisterNetEvent('qb-vehicletuning:server:CheckForItems', function(part)
             TriggerClientEvent('qb-vehicletuning:client:RepaireeePart', src, part)
             Player.Functions.RemoveItem(Config.RepairCostAmount[part].item, Config.RepairCostAmount[part].costs)
 
-            for i = 1, Config.RepairCostAmount[part].costs, 1 do
+            for _ = 1, Config.RepairCostAmount[part].costs, 1 do
                 TriggerClientEvent('inventory:client:ItemBox', src,
                     QBCore.Shared.Items[Config.RepairCostAmount[part].item], "remove")
                 Wait(500)

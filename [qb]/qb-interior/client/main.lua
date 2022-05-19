@@ -19,7 +19,7 @@ end
 
 exports('DespawnInterior', function(objects, cb)
     CreateThread(function()
-        for k, v in pairs(objects) do
+        for _, v in pairs(objects) do
             if DoesEntityExist(v) then
                 DeleteEntity(v)
             end

@@ -24,6 +24,7 @@ RegisterNUICallback('Check', function(data, cb)
             })
         end
     end
+    cb("ok")
 end)
 
 Skillbar.Start = function(data, success, fail)
@@ -80,3 +81,5 @@ end)
 function GetSkillbarObject()
     return Skillbar
 end
+
+exports("GetSkillbarObject", GetSkillbarObject)

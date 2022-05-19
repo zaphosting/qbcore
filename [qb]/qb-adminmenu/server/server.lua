@@ -11,18 +11,17 @@ local permissions = {
 local players = {}
 
 -- Get Dealers
-QBCore.Functions.CreateCallback('test:getdealers', function(source, cb)
+QBCore.Functions.CreateCallback('test:getdealers', function(_, cb)
     cb(exports['qb-drugs']:GetDealers())
 end)
 
 -- Get Players
-QBCore.Functions.CreateCallback('test:getplayers', function(source, cb) -- WORKS
+QBCore.Functions.CreateCallback('test:getplayers', function(_, cb) -- WORKS
     cb(players)
 end)
 
 QBCore.Functions.CreateCallback('qb-admin:server:getrank', function(source, cb)
-    local src = source
-    if QBCore.Functions.HasPermission(src, 'god') or IsPlayerAceAllowed(src, 'command') then
+    if QBCore.Functions.HasPermission(source, 'god') or IsPlayerAceAllowed(source, 'command') then
         cb(true)
     else
         cb(false)
@@ -65,13 +64,13 @@ end)
 RegisterNetEvent('qb-admin:server:ban', function(player, time, reason)
     local src = source
     if QBCore.Functions.HasPermission(src, permissions['ban']) or IsPlayerAceAllowed(src, 'command') then
-        local time = tonumber(time)
+        time = tonumber(time)
         local banTime = tonumber(os.time() + time)
         if banTime > 2147483647 then
             banTime = 2147483647
         end
         local timeTable = os.date('*t', banTime)
-        MySQL.Async.insert('INSERT INTO bans (name, license, discord, ip, reason, expire, bannedby) VALUES (?, ?, ?, ?, ?, ?, ?)', {
+        MySQL.insert('INSERT INTO bans (name, license, discord, ip, reason, expire, bannedby) VALUES (?, ?, ?, ?, ?, ?, ?)', {
             GetPlayerName(player.id),
             QBCore.Functions.GetIdentifier(player.id, 'license'),
             QBCore.Functions.GetIdentifier(player.id, 'discord'),
@@ -195,12 +194,20 @@ RegisterNetEvent('qb-admin:server:Staffchat:addMessage', function(name, msg)
     end
 end)
 
-RegisterNetEvent('qb-admin:server:SaveCar', function(mods, vehicle, hash, plate)
+
+RegisterServerEvent('qb-admin:giveWeapon')
+AddEventHandler('qb-admin:giveWeapon', function(weapon)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
-    local result = MySQL.Sync.fetchAll('SELECT plate FROM player_vehicles WHERE plate = ?', { plate })
+    Player.Functions.AddItem(weapon, 1)
+end)
+
+RegisterNetEvent('qb-admin:server:SaveCar', function(mods, vehicle, _, plate)
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    local result = MySQL.query.await('SELECT plate FROM player_vehicles WHERE plate = ?', { plate })
     if result[1] == nil then
-        MySQL.Async.insert('INSERT INTO player_vehicles (license, citizenid, vehicle, hash, mods, plate, state) VALUES (?, ?, ?, ?, ?, ?, ?)', {
+        MySQL.insert('INSERT INTO player_vehicles (license, citizenid, vehicle, hash, mods, plate, state) VALUES (?, ?, ?, ?, ?, ?, ?)', {
             Player.PlayerData.license,
             Player.PlayerData.citizenid,
             vehicle.model,
@@ -216,6 +223,11 @@ RegisterNetEvent('qb-admin:server:SaveCar', function(mods, vehicle, hash, plate)
 end)
 
 -- Commands
+
+QBCore.Commands.Add('maxmods', Lang:t("desc.max_mod_desc"), {}, false, function(source)
+    local src = source
+    TriggerClientEvent('qb-admin:client:maxmodVehicle', src)
+end, 'admin')
 
 QBCore.Commands.Add('blips', Lang:t("commands.blips_for_player"), {}, false, function(source)
     local src = source
@@ -237,12 +249,11 @@ QBCore.Commands.Add('noclip', Lang:t("commands.toogle_noclip"), {}, false, funct
     TriggerClientEvent('qb-admin:client:ToggleNoClip', src)
 end, 'admin')
 
-QBCore.Commands.Add('admincar', Lang:t("commands.save_vehicle_garage"), {}, false, function(source, args)
-    local ply = QBCore.Functions.GetPlayer(source)
+QBCore.Commands.Add('admincar', Lang:t("commands.save_vehicle_garage"), {}, false, function(source, _)
     TriggerClientEvent('qb-admin:client:SaveCar', source)
 end, 'admin')
 
-QBCore.Commands.Add('announce', Lang:t("commands.make_announcement"), {}, false, function(source, args)
+QBCore.Commands.Add('announce', Lang:t("commands.make_announcement"), {}, false, function(_, args)
     local msg = table.concat(args, ' ')
     if msg == '' then return end
     TriggerClientEvent('chat:addMessage', -1, {
@@ -252,7 +263,7 @@ QBCore.Commands.Add('announce', Lang:t("commands.make_announcement"), {}, false,
     })
 end, 'admin')
 
-QBCore.Commands.Add('admin', Lang:t("commands.open_admin"), {}, false, function(source, args)
+QBCore.Commands.Add('admin', Lang:t("commands.open_admin"), {}, false, function(source, _)
     TriggerClientEvent('qb-admin:client:openMenu', source)
 end, 'admin')
 
@@ -269,7 +280,7 @@ QBCore.Commands.Add('staffchat', Lang:t("commands.staffchat_message"), {{name='m
     TriggerClientEvent('qb-admin:client:SendStaffChat', -1, GetPlayerName(source), msg)
 end, 'admin')
 
-QBCore.Commands.Add('givenuifocus', Lang:t("commands.nui_focus"), {{name='id', help='Player id'}, {name='focus', help='Set focus on/off'}, {name='mouse', help='Set mouse on/off'}}, true, function(source, args)
+QBCore.Commands.Add('givenuifocus', Lang:t("commands.nui_focus"), {{name='id', help='Player id'}, {name='focus', help='Set focus on/off'}, {name='mouse', help='Set mouse on/off'}}, true, function(_, args)
     local playerid = tonumber(args[1])
     local focus = args[2]
     local mouse = args[3]
@@ -281,12 +292,11 @@ QBCore.Commands.Add('warn', Lang:t("commands.warn_a_player"), {{name='ID', help=
     local senderPlayer = QBCore.Functions.GetPlayer(source)
     table.remove(args, 1)
     local msg = table.concat(args, ' ')
-    local myName = senderPlayer.PlayerData.name
     local warnId = 'WARN-'..math.random(1111, 9999)
     if targetPlayer ~= nil then
 		TriggerClientEvent('chat:addMessage', targetPlayer.PlayerData.source, { args = { "SYSTEM", Lang:t("info.warning_chat_message")..GetPlayerName(source).."," .. Lang:t("info.reason") .. ": "..msg }, color = 255, 0, 0 })
 		TriggerClientEvent('chat:addMessage', source, { args = { "SYSTEM", Lang:t("info.warning_staff_message")..GetPlayerName(targetPlayer.PlayerData.source)..", for: "..msg }, color = 255, 0, 0 })
-        MySQL.Async.insert('INSERT INTO player_warns (senderIdentifier, targetIdentifier, reason, warnId) VALUES (?, ?, ?, ?)', {
+        MySQL.insert('INSERT INTO player_warns (senderIdentifier, targetIdentifier, reason, warnId) VALUES (?, ?, ?, ?)', {
             senderPlayer.PlayerData.license,
             targetPlayer.PlayerData.license,
             msg,
@@ -300,11 +310,11 @@ end, 'admin')
 QBCore.Commands.Add('checkwarns', Lang:t("commands.check_player_warning"), {{name='id', help='Player'}, {name='Warning', help='Number of warning, (1, 2 or 3 etc..)'}}, false, function(source, args)
     if args[2] == nil then
         local targetPlayer = QBCore.Functions.GetPlayer(tonumber(args[1]))
-        local result = MySQL.Sync.fetchAll('SELECT * FROM player_warns WHERE targetIdentifier = ?', { targetPlayer.PlayerData.license })
+        local result = MySQL.query.await('SELECT * FROM player_warns WHERE targetIdentifier = ?', { targetPlayer.PlayerData.license })
         TriggerClientEvent('chat:addMessage', source, 'SYSTEM', 'warning', targetPlayer.PlayerData.name..' has '..tablelength(result)..' warnings!')
     else
         local targetPlayer = QBCore.Functions.GetPlayer(tonumber(args[1]))
-        local warnings = MySQL.Sync.fetchAll('SELECT * FROM player_warns WHERE targetIdentifier = ?', { targetPlayer.PlayerData.license })
+        local warnings = MySQL.query.await('SELECT * FROM player_warns WHERE targetIdentifier = ?', { targetPlayer.PlayerData.license })
         local selectedWarning = tonumber(args[2])
         if warnings[selectedWarning] ~= nil then
             local sender = QBCore.Functions.GetPlayer(warnings[selectedWarning].senderIdentifier)
@@ -315,16 +325,15 @@ end, 'admin')
 
 QBCore.Commands.Add('delwarn', Lang:t("commands.delete_player_warning"), {{name='id', help='Player'}, {name='Warning', help='Number of warning, (1, 2 or 3 etc..)'}}, true, function(source, args)
     local targetPlayer = QBCore.Functions.GetPlayer(tonumber(args[1]))
-    local warnings = MySQL.Sync.fetchAll('SELECT * FROM player_warns WHERE targetIdentifier = ?', { targetPlayer.PlayerData.license })
+    local warnings = MySQL.query.await('SELECT * FROM player_warns WHERE targetIdentifier = ?', { targetPlayer.PlayerData.license })
     local selectedWarning = tonumber(args[2])
     if warnings[selectedWarning] ~= nil then
-        local sender = QBCore.Functions.GetPlayer(warnings[selectedWarning].senderIdentifier)
         TriggerClientEvent('chat:addMessage', source, 'SYSTEM', 'warning', 'You have deleted warning ('..selectedWarning..') , Reason: '..warnings[selectedWarning].reason)
-        MySQL.Async.execute('DELETE FROM player_warns WHERE warnId = ?', { warnings[selectedWarning].warnId })
+        MySQL.query('DELETE FROM player_warns WHERE warnId = ?', { warnings[selectedWarning].warnId })
     end
 end, 'admin')
 
-QBCore.Commands.Add('reportr', Lang:t("commands.reply_to_report"), {{name='id', help='Player'}, {name = 'message', help = 'Message to respond with'}}, false, function(source, args, rawCommand)
+QBCore.Commands.Add('reportr', Lang:t("commands.reply_to_report"), {{name='id', help='Player'}, {name = 'message', help = 'Message to respond with'}}, false, function(source, args)
     local src = source
     local playerId = tonumber(args[1])
     table.remove(args, 1)
@@ -375,7 +384,7 @@ QBCore.Commands.Add('setspeed', Lang:t("commands.set_player_foot_speed"), {}, fa
     end
 end, 'admin')
 
-QBCore.Commands.Add('reporttoggle', Lang:t("commands.report_toggle"), {}, false, function(source, args)
+QBCore.Commands.Add('reporttoggle', Lang:t("commands.report_toggle"), {}, false, function(source, _)
     local src = source
     QBCore.Functions.ToggleOptin(src)
     if QBCore.Functions.IsOptin(src) then
@@ -391,7 +400,7 @@ QBCore.Commands.Add('kickall', Lang:t("commands.kick_all"), {}, false, function(
         local reason = table.concat(args, ' ')
         if QBCore.Functions.HasPermission(src, 'god') or IsPlayerAceAllowed(src, 'command') then
             if reason and reason ~= '' then
-                for k, v in pairs(QBCore.Functions.GetPlayers()) do
+                for _, v in pairs(QBCore.Functions.GetPlayers()) do
                     local Player = QBCore.Functions.GetPlayer(v)
                     if Player then
                         DropPlayer(Player.PlayerData.source, reason)
@@ -402,7 +411,7 @@ QBCore.Commands.Add('kickall', Lang:t("commands.kick_all"), {}, false, function(
             end
         end
     else
-        for k, v in pairs(QBCore.Functions.GetPlayers()) do
+        for _, v in pairs(QBCore.Functions.GetPlayers()) do
             local Player = QBCore.Functions.GetPlayer(v)
             if Player then
                 DropPlayer(Player.PlayerData.source, Lang:t("info.server_restart") .. QBCore.Config.Server.Discord)
@@ -411,7 +420,7 @@ QBCore.Commands.Add('kickall', Lang:t("commands.kick_all"), {}, false, function(
     end
 end, 'god')
 
-QBCore.Commands.Add('setammo', Lang:t("commands.ammo_amount_set"), {{name='amount', help='Amount of bullets, for example: 20'}, {name='weapon', help='Name of the weapen, for example: WEAPON_VINTAGEPISTOL'}}, false, function(source, args)
+QBCore.Commands.Add('setammo', Lang:t("commands.ammo_amount_set"), {{name='amount', help='Amount of bullets, for example: 20'}, {name='weapon', help='Name of the weapon, for example: WEAPON_VINTAGEPISTOL'}}, false, function(source, args)
     local src = source
     local weapon = args[2]
     local amount = tonumber(args[1])
@@ -426,7 +435,7 @@ end, 'admin')
 CreateThread(function()
     while true do
         local tempPlayers = {}
-        for k, v in pairs(QBCore.Functions.GetPlayers()) do
+        for _, v in pairs(QBCore.Functions.GetPlayers()) do
             local targetped = GetPlayerPed(v)
             local ped = QBCore.Functions.GetPlayer(v)
             tempPlayers[#tempPlayers + 1] = {

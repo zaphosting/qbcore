@@ -1,5 +1,4 @@
 local QBCore = exports['qb-core']:GetCoreObject()
-local inWatch = false
 
 -- Functions
 
@@ -9,7 +8,6 @@ local function openWatch()
         watchData = {}
     })
     SetNuiFocus(true, true)
-    inWatch = true
 end
 
 local function closeWatch()
@@ -23,28 +21,30 @@ end
 
 -- Events
 
-RegisterNUICallback('close', function()
+RegisterNUICallback('close', function(_, cb)
     closeWatch()
+    cb('ok')
 end)
 
-RegisterNetEvent('qb-fitbit:use', function()
+RegisterNetEvent('qb-fitbit:use', function(_, cb)
     openWatch()
+    cb('ok')
 end)
 
 -- NUI Callbacks
 
-RegisterNUICallback('setFoodWarning', function(data)
+RegisterNUICallback('setFoodWarning', function(data, cb)
     local foodValue = tonumber(data.value)
-
     TriggerServerEvent('qb-fitbit:server:setValue', 'food', foodValue)
     QBCore.Functions.Notify(Lang:t('success.hunger_set', {hungervalue = foodValue}), 'success')
+    cb('ok')
 end)
 
-RegisterNUICallback('setThirstWarning', function(data)
+RegisterNUICallback('setThirstWarning', function(data, cb)
     local thirstValue = tonumber(data.value)
-
     TriggerServerEvent('qb-fitbit:server:setValue', 'thirst', thirstValue)
     QBCore.Functions.Notify(Lang:t('success.thirst_set', {thirstvalue = thirstValue}), 'success')
+    cb('ok')
 end)
 
 -- Threads
