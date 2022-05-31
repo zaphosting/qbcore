@@ -92,16 +92,14 @@ RegisterNetEvent('qb-admin:server:ban', function(player, time, reason)
     end
 end)
 
-RegisterNetEvent('qb-admin:server:spectate')
-AddEventHandler('qb-admin:server:spectate', function(player)
+RegisterNetEvent('qb-admin:server:spectate', function(player)
     local src = source
     local targetped = GetPlayerPed(player.id)
     local coords = GetEntityCoords(targetped)
     TriggerClientEvent('qb-admin:client:spectate', src, player.id, coords)
 end)
 
-RegisterNetEvent('qb-admin:server:freeze')
-AddEventHandler('qb-admin:server:freeze', function(player)
+RegisterNetEvent('qb-admin:server:freeze', function(player)
     local target = GetPlayerPed(player.id)
     if not frozen then
         frozen = true
@@ -195,8 +193,7 @@ RegisterNetEvent('qb-admin:server:Staffchat:addMessage', function(name, msg)
 end)
 
 
-RegisterServerEvent('qb-admin:giveWeapon')
-AddEventHandler('qb-admin:giveWeapon', function(weapon)
+RegisterServerEvent('qb-admin:giveWeapon', function(weapon)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     Player.Functions.AddItem(weapon, 1)
@@ -430,6 +427,26 @@ QBCore.Commands.Add('setammo', Lang:t("commands.ammo_amount_set"), {{name='amoun
     else
         TriggerClientEvent('qb-weapons:client:SetWeaponAmmoManual', src, 'current', amount)
     end
+end, 'admin')
+
+QBCore.Commands.Add('vector2', 'Copy vector2 to clipboard (Admin only)', {}, false, function(source)
+    local src = source
+    TriggerClientEvent('qb-admin:client:copyToClipboard', src, 'coords2')
+end, 'admin')
+
+QBCore.Commands.Add('vector3', 'Copy vector3 to clipboard (Admin only)', {}, false, function(source)
+    local src = source
+    TriggerClientEvent('qb-admin:client:copyToClipboard', src, 'coords3')
+end, 'admin')
+
+QBCore.Commands.Add('vector4', 'Copy vector4 to clipboard (Admin only)', {}, false, function(source)
+    local src = source
+    TriggerClientEvent('qb-admin:client:copyToClipboard', src, 'coords4')
+end, 'admin')
+
+QBCore.Commands.Add('heading', 'Copy heading to clipboard (Admin only)', {}, false, function(source)
+    local src = source
+    TriggerClientEvent('qb-admin:client:copyToClipboard', src, 'heading')
 end, 'admin')
 
 CreateThread(function()

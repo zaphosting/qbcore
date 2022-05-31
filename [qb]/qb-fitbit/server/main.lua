@@ -6,24 +6,14 @@ end)
 
 RegisterNetEvent('qb-fitbit:server:setValue', function(type, value)
     local src = source
-    local ply = QBCore.Functions.GetPlayer(src)
-    if not ply then return end
+    local Player = QBCore.Functions.GetPlayer(src)
+    if not Player then return end
+    if not Player.Functions.GetItemByName("fitbit") then return end
 
-    local fitbitData = {}
-
-    if type == "thirst" then
-        local currentMeta = ply.PlayerData.metadata["fitbit"]
-        fitbitData = {
-            thirst = value,
-            food = currentMeta.food
-        }
-    elseif type == "food" then
-        local currentMeta = ply.PlayerData.metadata["fitbit"]
-        fitbitData = {
-            thirst = currentMeta.thirst,
-            food = value
-        }
-    end
-
-    ply.Functions.SetMetaData('fitbit', fitbitData)
+    local currentMeta = Player.PlayerData.metadata["fitbit"]
+    local fitbitData = {
+        thirst = type == "thirst" and value or currentMeta.thirst,
+        food = type == "food" and value or currentMeta.food
+    }
+    Player.Functions.SetMetaData('fitbit', fitbitData)
 end)

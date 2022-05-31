@@ -2,8 +2,15 @@ local QBCore = exports['qb-core']:GetCoreObject()
 local PlayerData = QBCore.Functions.GetPlayerData()
 local isLoggedIn = LocalPlayer.state.isLoggedIn
 local hasFitbit = false
-
+local cooldown = false
 -- Functions
+local function fitbitCheck(PlayerItems)
+    for _, item in pairs(PlayerItems) do
+        if item.name == "fitbit" then
+            return true
+        end
+    end
+end
 
 local function openWatch()
     SendNUIMessage({
@@ -22,36 +29,66 @@ local function round(num, numDecimalPlaces)
     return math.floor(num * mult + 0.5) / mult
 end
 
+local function activateCooldown()
+    cooldown = true
+    Wait(2*60*1000)
+    cooldown = false
+end
 -- Events
+
+AddStateBagChangeHandler('isLoggedIn', nil, function(_, _, value)
+    isLoggedIn = value
+end)
+
+AddEventHandler('onResourceStart', function(resourceName)
+    if GetCurrentResourceName() ~= resourceName or not isLoggedIn then return end
+    PlayerData = QBCore.Functions.GetPlayerData()
+    hasFitbit = fitbitCheck(PlayerData.items)
+end)
+
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+    PlayerData = QBCore.Functions.GetPlayerData()
+    hasFitbit = fitbitCheck(PlayerData.items)
+end)
+
+RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
+    hasFitbit = false
+    PlayerData = {}
+end)
+
+RegisterNetEvent('QBCore:Player:SetPlayerData', function(val)
+    PlayerData = val
+    hasFitbit = fitbitCheck(PlayerData.items)
+end)
+
+RegisterNetEvent('hud:client:UpdateNeeds', function(newHunger, newThirst)
+    if not hasFitbit or cooldown then return end
+    if PlayerData.metadata["fitbit"].food then
+        if newHunger < PlayerData.metadata["fitbit"].food then
+            TriggerEvent("chatMessage", Lang:t('info.fitbit'), "warning", Lang:t('warning.hunger_warning', {hunger = round(newHunger, 2)}))
+            PlaySound(-1, "Event_Start_Text", "GTAO_FM_Events_Soundset", 0, 0, 1)
+        end
+    end
+
+    if PlayerData.metadata["fitbit"].thirst then
+        if newThirst < PlayerData.metadata["fitbit"].thirst then
+            TriggerEvent("chatMessage", Lang:t('info.fitbit'), "warning", Lang:t('warning.thirst_warning', {thirst = round(newThirst, 2)}))
+            PlaySound(-1, "Event_Start_Text", "GTAO_FM_Events_Soundset", 0, 0, 1)
+        end
+    end
+    activateCooldown()
+end)
+
+RegisterNetEvent('qb-fitbit:use', function()
+    openWatch()
+end)
+
+-- NUI Callbacks
 
 RegisterNUICallback('close', function(_, cb)
     closeWatch()
     cb('ok')
 end)
-
-RegisterNetEvent('qb-fitbit:use', function(_, cb)
-    openWatch()
-    cb('ok')
-end)
-
-RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    PlayerData = QBCore.Functions.GetPlayerData()
-    hasFitbit = QBCore.Functions.HasItem('fitbit')
-    isLoggedIn = true
-end)
-
-RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
-    isLoggedIn = false
-    hasFitbit = false
-    PlayerData = {}
-end)
-
-RegisterNetEvent('QBCore:Client:SetPlayerData', function(val)
-    PlayerData = val
-    hasFitbit = QBCore.Functions.HasItem('fitbit')
-end)
-
--- NUI Callbacks
 
 RegisterNUICallback('setFoodWarning', function(data, cb)
     local foodValue = tonumber(data.value)
@@ -65,29 +102,4 @@ RegisterNUICallback('setThirstWarning', function(data, cb)
     TriggerServerEvent('qb-fitbit:server:setValue', 'thirst', thirstValue)
     QBCore.Functions.Notify(Lang:t('success.thirst_set', {thirstvalue = thirstValue}), 'success')
     cb('ok')
-end)
-
--- Threads
-
-CreateThread(function()
-    while true do
-        if isLoggedIn then
-            if hasFitbit then
-                if PlayerData.metadata["fitbit"].food then
-                    if PlayerData.metadata["hunger"] < PlayerData.metadata["fitbit"].food then
-                        TriggerEvent("chatMessage", Lang:t('info.fitbit'), "warning", Lang:t('warning.hunger_warning', {hunger = round(PlayerData.metadata["hunger"], 2)}))
-                        PlaySound(-1, "Event_Start_Text", "GTAO_FM_Events_Soundset", 0, 0, 1)
-                    end
-                end
-
-                if PlayerData.metadata["fitbit"].thirst then
-                    if PlayerData.metadata["thirst"] < PlayerData.metadata["fitbit"].thirst then
-                        TriggerEvent("chatMessage", Lang:t('info.fitbit'), "warning", Lang:t('warning.thirst_warning', {thirst = round(PlayerData.metadata["thirst"], 2)}))
-                        PlaySound(-1, "Event_Start_Text", "GTAO_FM_Events_Soundset", 0, 0, 1)
-                    end
-                end
-            end
-        end
-        Wait(5 * 60 * 1000)
-    end
 end)
