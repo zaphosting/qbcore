@@ -15,10 +15,14 @@ end
 
 local function IsTargetDead(playerId)
     local retval = false
+    local hasReturned = false
     QBCore.Functions.TriggerCallback('police:server:isPlayerDead', function(result)
         retval = result
+        hasReturned = true
     end, playerId)
-    Wait(100)
+    while not hasReturned do
+      Wait(10)
+    end
     return retval
 end
 
@@ -148,14 +152,6 @@ RegisterNetEvent('police:client:RobPlayer', function()
     else
         QBCore.Functions.Notify(Lang:t("error.none_nearby"), "error")
     end
-end)
-
-RegisterNetEvent('police:client:JailCommand', function(playerId, time)
-    TriggerServerEvent("police:server:JailPlayer", playerId, tonumber(time))
-end)
-
-RegisterNetEvent('police:client:BillCommand', function(playerId, price)
-    TriggerServerEvent("police:server:BillPlayer", playerId, tonumber(price))
 end)
 
 RegisterNetEvent('police:client:JailPlayer', function()

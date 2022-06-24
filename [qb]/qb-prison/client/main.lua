@@ -75,22 +75,25 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
 	end)
 
 	if DoesEntityExist(canteen_ped) or DoesEntityExist(freedom_ped) then return end
+
 	local pedModel = `s_m_m_armoured_01`
+
 	RequestModel(pedModel)
 	while not HasModelLoaded(pedModel) do
 		Wait(0)
 	end
-	canteen_ped = CreatePed(0, pedModel ,1786.19, 2557.77, 44.62, 186.04, false, true)
-	FreezeEntityPosition(canteen_ped, true)
-	SetEntityInvincible(canteen_ped, true)
-	SetBlockingOfNonTemporaryEvents(canteen_ped, true)
-	TaskStartScenarioInPlace(canteen_ped, 'WORLD_HUMAN_CLIPBOARD', 0, true)
 
-	freedom_ped = CreatePed(0, pedModel , 1836.37, 2585.33, 44.88, 78.67, false, true)
+	freedom_ped = CreatePed(0, pedModel, Config.Locations["freedom"].coords.x, Config.Locations["freedom"].coords.y, Config.Locations["freedom"].coords.z, Config.Locations["freedom"].coords.w, false, true)
 	FreezeEntityPosition(freedom_ped, true)
 	SetEntityInvincible(freedom_ped, true)
 	SetBlockingOfNonTemporaryEvents(freedom_ped, true)
 	TaskStartScenarioInPlace(freedom_ped, 'WORLD_HUMAN_CLIPBOARD', 0, true)
+
+	canteen_ped = CreatePed(0, pedModel, Config.Locations["shop"].coords.x, Config.Locations["shop"].coords.y, Config.Locations["shop"].coords.z, Config.Locations["shop"].coords.w, false, true)
+	FreezeEntityPosition(canteen_ped, true)
+	SetEntityInvincible(canteen_ped, true)
+	SetBlockingOfNonTemporaryEvents(canteen_ped, true)
+	TaskStartScenarioInPlace(canteen_ped, 'WORLD_HUMAN_CLIPBOARD', 0, true)
 
 	if not Config.UseTarget then return end
 
@@ -142,22 +145,25 @@ AddEventHandler('onResourceStart', function(resource)
 	end)
 
 	if DoesEntityExist(canteen_ped) or DoesEntityExist(freedom_ped) then return end
+
 	local pedModel = `s_m_m_armoured_01`
+
 	RequestModel(pedModel)
 	while not HasModelLoaded(pedModel) do
 		Wait(0)
 	end
-	canteen_ped = CreatePed(0, pedModel, 1786.19, 2557.77, 44.62, 186.04, false, true)
-	FreezeEntityPosition(canteen_ped, true)
-	SetEntityInvincible(canteen_ped, true)
-	SetBlockingOfNonTemporaryEvents(canteen_ped, true)
-	TaskStartScenarioInPlace(canteen_ped, 'WORLD_HUMAN_CLIPBOARD', 0, true)
 
-	freedom_ped = CreatePed(0, pedModel, 1836.37, 2585.33, 44.88, 78.67, false, true)
+	freedom_ped = CreatePed(0, pedModel, Config.Locations["freedom"].coords.x, Config.Locations["freedom"].coords.y, Config.Locations["freedom"].coords.z, Config.Locations["freedom"].coords.w, false, true)
 	FreezeEntityPosition(freedom_ped, true)
 	SetEntityInvincible(freedom_ped, true)
 	SetBlockingOfNonTemporaryEvents(freedom_ped, true)
 	TaskStartScenarioInPlace(freedom_ped, 'WORLD_HUMAN_CLIPBOARD', 0, true)
+
+	canteen_ped = CreatePed(0, pedModel, Config.Locations["shop"].coords.x, Config.Locations["shop"].coords.y, Config.Locations["shop"].coords.z, Config.Locations["shop"].coords.w, false, true)
+	FreezeEntityPosition(canteen_ped, true)
+	SetEntityInvincible(canteen_ped, true)
+	SetBlockingOfNonTemporaryEvents(canteen_ped, true)
+	TaskStartScenarioInPlace(canteen_ped, 'WORLD_HUMAN_CLIPBOARD', 0, true)
 
 	if not Config.UseTarget then return end
 
@@ -199,6 +205,13 @@ RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
 end)
 
 RegisterNetEvent('prison:client:Enter', function(time)
+	local invokingResource = GetInvokingResource()
+	if invokingResource and invokingResource ~= 'qb-policejob' and invokingResource ~= 'qb-ambulancejob' and invokingResource ~= GetCurrentResourceName() then
+		-- Use QBCore.Debug here for a quick and easy way to print to the console to grab your attention with this message
+		QBCore.Debug({('Player with source %s tried to execute prison:client:Enter manually or from another resource which is not authorized to call this, invokedResource: %s'):format(GetPlayerServerId(PlayerId()), invokingResource)})
+		return
+	end
+
 	QBCore.Functions.Notify( Lang:t("error.injail", {Time = time}), "error")
 
 	TriggerEvent("chatMessage", "SYSTEM", "warning", "Your property has been seized, you'll get everything back when your time is up..")

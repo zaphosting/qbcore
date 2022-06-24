@@ -227,10 +227,10 @@ function GetKeys()
     end)
 end
 
-exports('HasKeys', HasKeys)
 function HasKeys(plate)
     return KeysList[plate]
 end
+exports('HasKeys', HasKeys)
 
 function loadAnimDict(dict)
     while (not HasAnimDictLoaded(dict)) do
@@ -377,11 +377,11 @@ function lockpickFinish(success)
 
     if usingAdvanced then
         if chance <= Config.RemoveLockpickAdvanced then
-            TriggerServerEvent("inventory:server:breakLockpick", "advancedlockpick")
+            TriggerServerEvent("qb-vehiclekeys:server:breakLockpick", "advancedlockpick")
         end
     else
         if chance <= Config.RemoveLockpickNormal then
-            TriggerServerEvent("inventory:server:breakLockpick", "lockpick")
+            TriggerServerEvent("qb-vehiclekeys:server:breakLockpick", "lockpick")
         end
     end
 end

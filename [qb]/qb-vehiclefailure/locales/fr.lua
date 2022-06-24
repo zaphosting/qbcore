@@ -1,7 +1,7 @@
 local Translations = {
     error = {
         ["failed_notification"] = "Echoué!",
-        ["not_near_veh"] = "Vous n'êtes pas pret d'un véhicule!",
+        ["not_near_veh"] = "Vous n'êtes pas près d'un véhicule!",
         ["out_range_veh"] = "Vous êtes trop loin d'un véhicule!",
         ["inside_veh"] = "Vous ne pouvez pas réparer le moteur depuis l'intérieur du véhicule!",
         ["healthy_veh"] = "Votre véhicule est en trop bon état et nécessite de meilleurs outil pour être réparer!",
@@ -18,7 +18,7 @@ local Translations = {
         ["nofix_message_6"] = "n'essayez jamais de réparer quelque chose de cassé, mais vous n'avez pas écouté",
     },
     success = {
-        ["cleaned_veh"] = "Vehicule néttoyé!",
+        ["cleaned_veh"] = "Vehicule nettoyé!",
         ["repaired_veh"] = "Vehicule réparé!",
         ["fix_message_1"] = "Vous avez vérifié le niveau d'huile",
         ["fix_message_2"] = "Vous avez fermé la fuite d'huile avec du chewing gum",

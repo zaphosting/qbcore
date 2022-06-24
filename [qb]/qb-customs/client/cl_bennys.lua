@@ -792,7 +792,7 @@ function EnterLocation(override)
     InitiateMenus(isMotorcycle, GetVehicleBodyHealth(plyVeh), categories, welcomeLabel)
 
     SetTimeout(100, function()
-        if GetVehicleBodyHealth(plyVeh) < 1000.0 then
+        if GetVehicleBodyHealth(plyVeh) < 1000.0 and categories.repair then
             DisplayMenu(true, "repairMenu")
         else
             DisplayMenu(true, "mainMenu")

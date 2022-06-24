@@ -79,18 +79,35 @@ local function HandlePriceChance()
     end
 
     if Crypto.History[coin][4] then
-        Crypto.History[coin][1] = {PreviousWorth = prevValue, NewWorth = currentValue}
+        -- Shift array index 1 to 3
+        for k=3,1,-1 do
+            Crypto.History[coin][k] = Crypto.History[coin][k+1]
+        end
+        -- Assign array index 4 to the latest result
+        Crypto.History[coin][4] = {PreviousWorth = prevValue, NewWorth = currentValue}
     else
         Crypto.History[coin][#Crypto.History[coin] + 1] = {PreviousWorth = prevValue, NewWorth = currentValue}
     end
 
     Crypto.Worth[coin] = currentValue
 
-    MySQL.insert('INSERT INTO crypto (worth, history) VALUES (:worth, :history) ON DUPLICATE KEY UPDATE worth = :worth, history = :history', {
+    local history = json.encode(Crypto.History[coin])
+    local props = {
         ['worth'] = currentValue,
-        ['history'] = json.encode(Crypto.History[coin]),
-    })
-    RefreshCrypto()
+        ['history'] = history,
+        ['crypto'] = coin
+    }
+    MySQL.update(
+        'UPDATE crypto set worth = :worth, history = :history where crypto = :crypto',
+        props,
+        function(affectedRows)
+            if affectedRows < 1 then
+                print("Crypto not found, inserting new record for " .. coin)
+                MySQL.insert('INSERT INTO crypto (crypto, worth, history) VALUES (:crypto, :worth, :history)', props)
+            end
+            RefreshCrypto()
+        end
+    )
 end
 
 -- Commands
@@ -122,7 +139,7 @@ QBCore.Commands.Add("setcryptoworth", "Set crypto value", {{name="crypto", help=
                     NewWorth = NewWorth
                 }
 
-                TriggerClientEvent('QBCore:Notify', src, "You have the value of "..Crypto.Labels[crypto].."adapted from: ($"..Crypto.Worth[crypto].." to: $"..NewWorth..") ("..ChangeLabel.." "..PercentageChange.."%)")
+                TriggerClientEvent('QBCore:Notify', src, "You have changed the value of "..Crypto.Labels[crypto].." from: $"..Crypto.Worth[crypto].." to: $"..NewWorth.." ("..ChangeLabel.." "..PercentageChange.."%)")
                 Crypto.Worth[crypto] = NewWorth
                 TriggerClientEvent('qb-crypto:client:UpdateCryptoWorth', -1, crypto, NewWorth)
                 MySQL.insert('INSERT INTO crypto (worth, history) VALUES (:worth, :history) ON DUPLICATE KEY UPDATE worth = :worth, history = :history', {
@@ -244,7 +261,7 @@ end)
 
 QBCore.Functions.CreateCallback('qb-crypto:server:BuyCrypto', function(source, cb, data)
     local Player = QBCore.Functions.GetPlayer(source)
-    local total_price = tonumber(data.Coins) * tonumber(Crypto.Worth["qbit"])
+    local total_price = math.floor(tonumber(data.Coins) * tonumber(Crypto.Worth["qbit"]))
     if Player.PlayerData.money.bank >= total_price then
         local CryptoData = {
             History = Crypto.History["qbit"],
@@ -272,8 +289,9 @@ QBCore.Functions.CreateCallback('qb-crypto:server:SellCrypto', function(source, 
             WalletId = Player.PlayerData.metadata["walletid"],
         }
         Player.Functions.RemoveMoney('crypto', tonumber(data.Coins))
+        local amount = math.floor(tonumber(data.Coins) * tonumber(Crypto.Worth["qbit"]))
         TriggerClientEvent('qb-phone:client:AddTransaction', source, Player, data, "You have "..tonumber(data.Coins).." Qbit('s) sold!", "Depreciation")
-        Player.Functions.AddMoney('bank', tonumber(data.Coins) * tonumber(Crypto.Worth["qbit"]))
+        Player.Functions.AddMoney('bank', amount)
         cb(CryptoData)
     else
         cb(false)
