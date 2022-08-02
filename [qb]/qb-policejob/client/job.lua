@@ -113,7 +113,8 @@ end
 function TakeOutImpound(vehicle)
     local coords = Config.Locations["impound"][currentGarage]
     if coords then
-        QBCore.Functions.SpawnVehicle(vehicle.vehicle, function(veh)
+        QBCore.Functions.TriggerCallback('QBCore:Server:SpawnVehicle', function(netId)
+            local veh = NetToVeh(netId)
             QBCore.Functions.TriggerCallback('qb-garage:server:GetVehicleProperties', function(properties)
                 QBCore.Functions.SetVehicleProperties(veh, properties)
                 SetVehicleNumberPlateText(veh, vehicle.plate)
@@ -126,14 +127,15 @@ function TakeOutImpound(vehicle)
                 TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
                 SetVehicleEngineOn(veh, true, true)
             end, vehicle.plate)
-        end, coords, true)
+        end, vehicle.vehicle, coords, true)
     end
 end
 
 function TakeOutVehicle(vehicleInfo)
     local coords = Config.Locations["vehicle"][currentGarage]
     if coords then
-        QBCore.Functions.SpawnVehicle(vehicleInfo, function(veh)
+        QBCore.Functions.TriggerCallback('QBCore:Server:SpawnVehicle', function(netId)
+            local veh = NetToVeh(netId)
             SetCarItemsInfo()
             SetVehicleNumberPlateText(veh, Lang:t('info.police_plate')..tostring(math.random(1000, 9999)))
             SetEntityHeading(veh, coords.w)
@@ -151,7 +153,7 @@ function TakeOutVehicle(vehicleInfo)
             TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
             TriggerServerEvent("inventory:server:addTrunkItems", QBCore.Functions.GetPlate(veh), Config.CarItems)
             SetVehicleEngineOn(veh, true, true)
-        end, coords, true)
+        end, vehicleInfo, coords, true)
     end
 end
 
@@ -336,9 +338,35 @@ RegisterNetEvent('police:client:ImpoundVehicle', function(fullImpound, price)
         local pos = GetEntityCoords(ped)
         local vehpos = GetEntityCoords(vehicle)
         if #(pos - vehpos) < 5.0 and not IsPedInAnyVehicle(ped) then
-            local plate = QBCore.Functions.GetPlate(vehicle)
-            TriggerServerEvent("police:server:Impound", plate, fullImpound, price, bodyDamage, engineDamage, totalFuel)
-            QBCore.Functions.DeleteVehicle(vehicle)
+           QBCore.Functions.Progressbar('impound', Lang:t('progressbar.impound'), 5000, false, true, {
+                disableMovement = true,
+                disableCarMovement = true,
+                disableMouse = false,
+                disableCombat = true,
+            }, {
+                animDict = 'missheistdockssetup1clipboard@base',
+                anim = 'base',
+                flags = 1,
+            }, {
+                model = 'prop_notepad_01',
+                bone = 18905,
+                coords = { x = 0.1, y = 0.02, z = 0.05 },
+                rotation = { x = 10.0, y = 0.0, z = 0.0 },
+            },{
+                model = 'prop_pencil_01',
+                bone = 58866,
+                coords = { x = 0.11, y = -0.02, z = 0.001 },
+                rotation = { x = -120.0, y = 0.0, z = 0.0 },
+            }, function() -- Play When Done
+                local plate = QBCore.Functions.GetPlate(vehicle)
+                TriggerServerEvent("police:server:Impound", plate, fullImpound, price, bodyDamage, engineDamage, totalFuel)
+                QBCore.Functions.DeleteVehicle(vehicle)
+                TriggerEvent('QBCore:Notify', Lang:t('success.impounded'), 'success')
+                ClearPedTasks(ped)
+            end, function() -- Play When Cancel
+                ClearPedTasks(ped)
+                TriggerEvent('QBCore:Notify', Lang:t('error.canceled'), 'error')
+            end)
         end
     end
 end)
@@ -465,7 +493,8 @@ RegisterNetEvent('qb-police:client:spawnHelicopter', function(k)
     else
         local coords = Config.Locations["helicopter"][k]
         if not coords then coords = GetEntityCoords(PlayerPedId()) end
-        QBCore.Functions.SpawnVehicle(Config.PoliceHelicopter, function(veh)
+        QBCore.Functions.TriggerCallback('QBCore:Server:SpawnVehicle', function(netId)
+            local veh = NetToVeh(netId)
             SetVehicleLivery(veh , 0)
             SetVehicleMod(veh, 0, 48)
             SetVehicleNumberPlateText(veh, "ZULU"..tostring(math.random(1000, 9999)))
@@ -475,7 +504,7 @@ RegisterNetEvent('qb-police:client:spawnHelicopter', function(k)
             TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1)
             TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
             SetVehicleEngineOn(veh, true, true)
-        end, coords, true)
+        end, Config.PoliceHelicopter, coords, true)
     end
 end)
 
@@ -570,7 +599,7 @@ CreateThread(function()
     local evidenceCombo = ComboZone:Create(evidenceZones, {name = "evidenceCombo", debugPoly = false})
     evidenceCombo:onPlayerInOut(function(isPointInside)
         if isPointInside then
-            if onDuty then
+            if PlayerJob.name == "police" and onDuty then
                 local currentEvidence = 0
                 local pos = GetEntityCoords(PlayerPedId())
 

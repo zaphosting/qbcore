@@ -49,7 +49,7 @@ exports('CreateApartmentFurnished', function(spawn)
 	local house = CreateObject(`furnitured_midapart`, spawn.x, spawn.y, spawn.z, false, false, false)
     FreezeEntityPosition(house, true)
     objects[#objects+1] = house
-	TeleportToInterior(spawn.x + 1.5, spawn.y - 10.0, spawn.z, POIOffsets.exit.h)
+	TeleportToInterior(spawn.x + 1.5, spawn.y - 8.0, spawn.z, POIOffsets.exit.h)
 	if IsNew then
 		SetTimeout(750, function()
 			TriggerEvent('qb-clothes:client:CreateFirstCharacter')

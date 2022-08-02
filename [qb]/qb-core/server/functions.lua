@@ -44,7 +44,7 @@ function QBCore.Functions.GetPlayer(source)
 end
 
 function QBCore.Functions.GetPlayerByCitizenId(citizenid)
-    for src, _ in pairs(QBCore.Players) do
+    for src in pairs(QBCore.Players) do
         if QBCore.Players[src].PlayerData.citizenid == citizenid then
             return QBCore.Players[src]
         end
@@ -57,7 +57,7 @@ function QBCore.Functions.GetOfflinePlayerByCitizenId(citizenid)
 end
 
 function QBCore.Functions.GetPlayerByPhone(number)
-    for src, _ in pairs(QBCore.Players) do
+    for src in pairs(QBCore.Players) do
         if QBCore.Players[src].PlayerData.charinfo.phone == number then
             return QBCore.Players[src]
         end
@@ -67,7 +67,7 @@ end
 
 function QBCore.Functions.GetPlayers()
     local sources = {}
-    for k, _ in pairs(QBCore.Players) do
+    for k in pairs(QBCore.Players) do
         sources[#sources+1] = k
     end
     return sources
@@ -165,6 +165,30 @@ function QBCore.Functions.GetEntitiesInBucket(bucket --[[ int ]])
     else
         return false
     end
+end
+
+-- Server side vehicle creation with optional callback
+-- the CreateVehicle RPC still uses the client for creation so players must be near
+function QBCore.Functions.SpawnVehicle(source, model, coords, warp)
+    model = type(model) == 'string' and joaat(model) or model
+    if not coords then coords = GetEntityCoords(GetPlayerPed(source)) end
+    local veh = CreateVehicle(model, coords.x, coords.y, coords.z, coords.w, true, true)
+    while not DoesEntityExist(veh) do Wait(0) end
+    if warp then TaskWarpPedIntoVehicle(GetPlayerPed(source), veh, -1) end
+    return veh
+end
+
+-- Server side vehicle creation with optional callback
+-- the CreateAutomobile native is still experimental but doesn't use client for creation
+-- doesn't work for all vehicles!
+function QBCore.Functions.CreateVehicle(source, model, coords, warp)
+    model = type(model) == 'string' and joaat(model) or model
+    if not coords then coords = GetEntityCoords(GetPlayerPed(source)) end
+    local CreateAutomobile = `CREATE_AUTOMOBILE`
+    local veh = Citizen.InvokeNative(CreateAutomobile, model, coords, coords.w, true, true)
+    while not DoesEntityExist(veh) do Wait(0) end
+    if warp then TaskWarpPedIntoVehicle(GetPlayerPed(source), veh, -1) end
+    return veh
 end
 
 -- Paychecks (standalone - don't touch)
@@ -333,7 +357,7 @@ function QBCore.Functions.ToggleOptin(source)
     if not license or not QBCore.Functions.HasPermission(source, 'admin') then return end
     local Player = QBCore.Functions.GetPlayer(source)
     Player.PlayerData.optin = not Player.PlayerData.optin
-    Player.Functions.SetMetaData('optin', Player.PlayerData.optin)
+    Player.Functions.SetPlayerData('optin', Player.PlayerData.optin)
 end
 
 -- Check if player is banned
@@ -374,11 +398,11 @@ function QBCore.Functions.HasItem(source, items, amount)
     local Player = QBCore.Functions.GetPlayer(source)
     if not Player then return false end
     local isTable = type(items) == 'table'
-	local isArray = isTable and table.type(items) == 'array' or false
-	local totalItems = #items
+    local isArray = isTable and table.type(items) == 'array' or false
+    local totalItems = #items
     local count = 0
     local kvIndex = 2
-	if isTable and not isArray then
+    if isTable and not isArray then
         totalItems = 0
         for _ in pairs(items) do totalItems += 1 end
         kvIndex = 1
@@ -396,7 +420,7 @@ function QBCore.Functions.HasItem(source, items, amount)
         end
     else -- Single item as string
         local item = Player.Functions.GetItemByName(items)
-        if item and (not amount or (amount and item.amount >= amount)) then
+        if item and (not amount or (item and amount and item.amount >= amount)) then
             return true
         end
     end

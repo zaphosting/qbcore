@@ -34,7 +34,7 @@ function QBCore.Functions.HasItem(items, amount)
                 return true
             end
         else -- Single item as string
-            if itemData and itemData.name == items and (not amount or (amount and itemData.amount >= amount)) then
+            if itemData and itemData.name == items and (not amount or (itemData and amount and itemData.amount >= amount)) then
                 return true
             end
         end
@@ -396,7 +396,7 @@ function QBCore.Functions.SpawnVehicle(model, cb, coords, isnetworked, teleportI
     else
         coords = GetEntityCoords(ped)
     end
-    isnetworked = isnetworked or true
+    isnetworked = isnetworked == nil or isnetworked
     QBCore.Functions.LoadModel(model)
     local veh = CreateVehicle(model, coords.x, coords.y, coords.z, coords.w, isnetworked, false)
     local netid = NetworkGetNetworkIdFromEntity(veh)

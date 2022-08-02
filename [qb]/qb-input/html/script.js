@@ -34,7 +34,7 @@ const OpenMenu = (data) => {
                 form.push(renderCheckboxInput(item));
                 break;
             default:
-                form.push(`<div>${item.text}</div>`);
+                form.push(`<div class="label">${item.text}</div>`);
         }
     });
     form.push(
@@ -151,6 +151,15 @@ const CloseMenu = () => {
     formInputs = {};
 };
 
+const SetStyle = (style) => {
+    var stylesheet = $("<link>", {
+        rel: "stylesheet",
+        type: "text/css",
+        href: `./styles/${style}.css`
+    });
+    stylesheet.appendTo("head");
+};
+
 const CancelMenu = () => {
     $.post(`https://${GetParentResourceName()}/closeMenu`);
     return CloseMenu();
@@ -161,6 +170,8 @@ window.addEventListener("message", (event) => {
     const info = data.data;
     const action = data.action;
     switch (action) {
+        case "SET_STYLE":
+            return SetStyle(info);
         case "OPEN_MENU":
             return OpenMenu(info);
         case "CLOSE_MENU":

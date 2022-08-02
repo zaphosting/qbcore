@@ -61,7 +61,7 @@ local function SetupJobMenu()
         icon = 'briefcase',
         items = {}
     }
-    if Config.JobInteractions[PlayerData.job.name] and next(Config.JobInteractions[PlayerData.job.name]) then
+    if Config.JobInteractions[PlayerData.job.name] and next(Config.JobInteractions[PlayerData.job.name]) and PlayerData.job.onduty then
         JobMenu.items = Config.JobInteractions[PlayerData.job.name]
     end
 
@@ -88,6 +88,17 @@ local function SetupVehicleMenu()
     if Vehicle ~= 0 then
         VehicleMenu.items[#VehicleMenu.items+1] = Config.VehicleDoors
         if Config.EnableExtraMenu then VehicleMenu.items[#VehicleMenu.items+1] = Config.VehicleExtras end
+        
+        if not IsVehicleOnAllWheels(Vehicle) then
+            VehicleMenu.items[#VehicleMenu.items+1] = {
+                id = 'vehicle-flip',
+                title = 'Flip Vehicle',
+                icon = 'car-burst',
+                type = 'client',
+                event = 'qb-radialmenu:flipVehicle',
+                shouldClose = true
+            }
+        end
 
         if IsPedInAnyVehicle(ped) then
             local seatIndex = #VehicleMenu.items+1
@@ -159,7 +170,7 @@ local function SetupRadialMenu()
                 [1] = {
                     id = 'emergencybutton2',
                     title = Lang:t("options.emergency_button"),
-                    icon = 'exclamation-circle',
+                    icon = 'circle-exclamation',
                     type = 'client',
                     event = 'police:client:SendPoliceEmergencyAlert',
                     shouldClose = true,
@@ -323,6 +334,23 @@ RegisterNetEvent('qb-radialmenu:client:ChangeSeat', function(data)
     else
         QBCore.Functions.Notify(Lang:t("error.race_harness_on"), 'error')
     end
+end)
+
+RegisterNetEvent('qb-radialmenu:flipVehicle', function()
+    TriggerEvent('animations:client:EmoteCommandStart', {"mechanic"})
+    QBCore.Functions.Progressbar("pick_grape", Lang:t("progress.flipping_car"), Config.Fliptime, false, true, {
+        disableMovement = true,
+        disableCarMovement = true,
+        disableMouse = false,
+        disableCombat = true,
+    }, {}, {}, {}, function() -- Done
+        local vehicle = getNearestVeh()
+        SetVehicleOnGroundProperly(vehicle)
+        TriggerEvent('animations:client:EmoteCommandStart', {"c"})
+    end, function() -- Cancel
+        QBCore.Functions.Notify(Lang:t("task.cancel_task"), "error")
+        TriggerEvent('animations:client:EmoteCommandStart', {"c"})
+    end)
 end)
 
 -- NUI Callbacks

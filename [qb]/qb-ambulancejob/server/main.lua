@@ -2,6 +2,9 @@ local PlayerInjuries = {}
 local PlayerWeaponWounds = {}
 local QBCore = exports['qb-core']:GetCoreObject()
 local doctorCount = 0
+local doctorCalled = false
+local Doctors = {}
+
 -- Events
 
 -- Compatibility with txAdmin Menu's heal options.
@@ -31,7 +34,7 @@ RegisterNetEvent('hospital:server:RespawnAtHospital', function()
 	if Player.PlayerData.metadata["injail"] > 0 then
 		for k, v in pairs(Config.Locations["jailbeds"]) do
 			if not v.taken then
-				TriggerClientEvent('hospital:client:SendToBed2', src, k, v, true)
+				TriggerClientEvent('hospital:client:SendToBed', src, k, v, true)
 				TriggerClientEvent('hospital:client:SetBed2', -1, k, true)
 				if Config.WipeInventoryOnRespawn then
 					Player.Functions.ClearInventory()
@@ -160,15 +163,28 @@ end)
 
 RegisterNetEvent('hospital:server:AddDoctor', function(job)
 	if job == 'ambulance' then
+		local src = source
 		doctorCount = doctorCount + 1
 		TriggerClientEvent("hospital:client:SetDoctorCount", -1, doctorCount)
+		Doctors[src] = true
 	end
 end)
 
 RegisterNetEvent('hospital:server:RemoveDoctor', function(job)
 	if job == 'ambulance' then
+		local src = source
 		doctorCount = doctorCount - 1
 		TriggerClientEvent("hospital:client:SetDoctorCount", -1, doctorCount)
+		Doctors[src] = nil
+	end
+end)
+
+AddEventHandler("playerDropped", function()
+	local src = source
+	if Doctors[src] then
+		doctorCount = doctorCount - 1
+		TriggerClientEvent("hospital:client:SetDoctorCount", -1, doctorCount)
+		Doctors[src] = nil
 	end
 end)
 
@@ -195,12 +211,21 @@ RegisterNetEvent('hospital:server:RevivePlayer', function(playerId, isOldMan)
 end)
 
 RegisterNetEvent('hospital:server:SendDoctorAlert', function()
-    local players = QBCore.Functions.GetQBPlayers()
-    for _, v in pairs(players) do
-        if v.PlayerData.job.name == 'ambulance' and v.PlayerData.job.onduty then
-			TriggerClientEvent('QBCore:Notify', v.PlayerData.source, Lang:t('info.dr_needed'), 'ambulance')
-		end
-	end
+    local src = source
+    if not doctorCalled then
+        doctorCalled = true
+        local players = QBCore.Functions.GetQBPlayers()
+        for _, v in pairs(players) do
+            if v.PlayerData.job.name == 'ambulance' and v.PlayerData.job.onduty then
+                TriggerClientEvent('QBCore:Notify', v.PlayerData.source, Lang:t('info.dr_needed'), 'ambulance')
+            end
+        end
+        SetTimeout(Config.DocCooldown * 60000, function()
+            doctorCalled = false
+        end)
+    else
+        TriggerClientEvent('QBCore:Notify', src, 'Doctor has already been notified', 'error')
+    end
 end)
 
 RegisterNetEvent('hospital:server:UseFirstAid', function(targetId)

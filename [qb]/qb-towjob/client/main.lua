@@ -10,6 +10,7 @@ local selectedVeh = nil
 local showMarker = false
 local CurrentBlip2 = nil
 local CurrentTow = nil
+local drawDropOff = false
 
 -- Functions
 
@@ -22,6 +23,14 @@ local function getRandomVehicleLocation()
     return randomVehicle
 end
 
+local function drawDropOffMarker()
+    CreateThread(function()
+        while drawDropOff do
+            DrawMarker(2, Config.Locations["dropoff"].coords.x, Config.Locations["dropoff"].coords.y, Config.Locations["dropoff"].coords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.2, 0.15, 200, 0, 0, 222, false, false, false, true, false, false, false)
+            Wait(0)
+        end
+    end)
+end
 
 local function getVehicleInDirection(coordFrom, coordTo)
 	local rayHandle = CastRayPointToPoint(coordFrom.x, coordFrom.y, coordFrom.z, coordTo.x, coordTo.y, coordTo.z, 10, PlayerPedId(), 0)
@@ -30,13 +39,12 @@ local function getVehicleInDirection(coordFrom, coordTo)
 end
 
 local function isTowVehicle(vehicle)
-    local retval = false
     for k in pairs(Config.Vehicles) do
-        if GetEntityModel(vehicle) == GetHashKey(k) then
-            retval = true
+        if GetEntityModel(vehicle) == joaat(k) then
+            return true
         end
     end
-    return retval
+    return false
 end
 
 -- Old Menu Code (being removed)
@@ -220,7 +228,8 @@ end
 RegisterNetEvent('qb-tow:client:SpawnVehicle', function()
     local vehicleInfo = selectedVeh
     local coords = Config.Locations["vehicle"].coords
-    QBCore.Functions.SpawnVehicle(vehicleInfo, function(veh)
+    QBCore.Functions.TriggerCallback('QBCore:Server:SpawnVehicle', function(netId)
+        local veh = NetToVeh(netId)
         SetVehicleNumberPlateText(veh, "TOWR"..tostring(math.random(1000, 9999)))
         SetEntityHeading(veh, coords.w)
         exports['LegacyFuel']:SetFuel(veh, 100.0)
@@ -232,7 +241,7 @@ RegisterNetEvent('qb-tow:client:SpawnVehicle', function()
         for i = 1, 9, 1 do
             SetVehicleExtra(veh, i, 0)
         end
-    end, coords, true)
+    end, vehicleInfo, coords, false)
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
@@ -291,15 +300,14 @@ RegisterNetEvent('qb-tow:client:TowVehicle', function()
             local coordB = GetOffsetFromEntityInWorldCoords(playerped, 0.0, 5.0, 0.0)
             local targetVehicle = getVehicleInDirection(coordA, coordB)
 
-            if NpcOn and CurrentLocation ~= nil then
-                if GetEntityModel(targetVehicle) ~= GetHashKey(CurrentLocation.model) then
+            if NpcOn and CurrentLocation then
+                if GetEntityModel(targetVehicle) ~= joaat(CurrentLocation.model) then
                     QBCore.Functions.Notify(Lang:t("error.vehicle_not_correct"), "error")
                     return
                 end
             end
             if not IsPedInAnyVehicle(PlayerPedId()) then
                 if vehicle ~= targetVehicle then
-                    NetworkRequestControlOfEntity(targetVehicle)
                     local towPos = GetEntityCoords(vehicle)
                     local targetPos = GetEntityCoords(targetVehicle)
                     if #(towPos - targetPos) < 11.0 then
@@ -320,11 +328,14 @@ RegisterNetEvent('qb-tow:client:TowVehicle', function()
                             if NpcOn then
                                 RemoveBlip(CurrentBlip)
                                 QBCore.Functions.Notify(Lang:t("mission.goto_depot"), "primary", 5000)
-                                CurrentBlip2 = AddBlipForCoord(491.00, -1314.69, 29.25)
+                                CurrentBlip2 = AddBlipForCoord(Config.Locations["dropoff"].coords.x, Config.Locations["dropoff"].coords.y, Config.Locations["dropoff"].coords.z)
                                 SetBlipColour(CurrentBlip2, 3)
                                 SetBlipRoute(CurrentBlip2, true)
                                 SetBlipRouteColour(CurrentBlip2, 3)
-                                TriggerServerEvent('qb-tow:server:nano')
+                                drawDropOff = true
+                                drawDropOffMarker()
+                                local vehNetID = NetworkGetNetworkIdFromEntity(targetVehicle)
+                                TriggerServerEvent('qb-tow:server:nano', vehNetID)
                                 --remove zone
                                 CurrentLocation.zoneCombo:destroy()
                             end
@@ -358,7 +369,9 @@ RegisterNetEvent('qb-tow:client:TowVehicle', function()
                         deliverVehicle(CurrentTow)
                     end
                 end
+                RemoveBlip(CurrentBlip2)
                 CurrentTow = nil
+                drawDropOff = false
                 QBCore.Functions.Notify(Lang:t("mission.vehicle_takenoff"), "success")
             end, function() -- Cancel
                 StopAnimTask(PlayerPedId(), "mini@repair", "fixing_a_ped", 1.0)
@@ -411,10 +424,11 @@ end)
 
 RegisterNetEvent('qb-tow:client:SpawnNPCVehicle', function()
     if not VehicleSpawned then
-        QBCore.Functions.SpawnVehicle(CurrentLocation.model, function(veh)
+        QBCore.Functions.TriggerCallback('QBCore:Server:SpawnVehicle', function(netId)
+            local veh = NetToVeh(netId)
             exports['LegacyFuel']:SetFuel(veh, 0.0)
             VehicleSpawned = true
-        end, CurrentLocation, true)
+        end, CurrentLocation.model, CurrentLocation, false)
     end
 end)
 

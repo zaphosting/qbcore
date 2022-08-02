@@ -25,7 +25,7 @@ local function GiveStarterItems(source)
     end
 end
 
-local function loadHouseData()
+local function loadHouseData(src)
     local HouseGarages = {}
     local Houses = {}
     local result = MySQL.query.await('SELECT * FROM houselocations', {})
@@ -52,8 +52,8 @@ local function loadHouseData()
             }
         end
     end
-    TriggerClientEvent("qb-garages:client:houseGarageConfig", -1, HouseGarages)
-    TriggerClientEvent("qb-houses:client:setHouseConfig", -1, Houses)
+    TriggerClientEvent("qb-garages:client:houseGarageConfig", src, HouseGarages)
+    TriggerClientEvent("qb-houses:client:setHouseConfig", src, Houses)
 end
 
 -- Commands
@@ -81,7 +81,7 @@ RegisterNetEvent('qb-multicharacter:server:loadUserData', function(cData)
     if QBCore.Player.Login(src, cData.citizenid) then
         print('^2[qb-core]^7 '..GetPlayerName(src)..' (Citizen ID: '..cData.citizenid..') has succesfully loaded!')
         QBCore.Commands.Refresh(src)
-        loadHouseData()
+        loadHouseData(src)
         TriggerClientEvent('apartments:client:setupSpawnUI', src, cData)
         TriggerEvent("qb-log:server:CreateLog", "joinleave", "Loaded", "green", "**".. GetPlayerName(src) .. "** ("..(QBCore.Functions.GetIdentifier(src, 'discord') or 'undefined') .." |  ||"  ..(QBCore.Functions.GetIdentifier(src, 'ip') or 'undefined') ..  "|| | " ..(QBCore.Functions.GetIdentifier(src, 'license') or 'undefined') .." | " ..cData.citizenid.." | "..src..") loaded..")
 	end
@@ -93,19 +93,19 @@ RegisterNetEvent('qb-multicharacter:server:createCharacter', function(data)
     newData.cid = data.cid
     newData.charinfo = data
     if QBCore.Player.Login(src, false, newData) then
-        if Config.StartingApartment then
+        if Apartments.Starting then
             local randbucket = (GetPlayerPed(src) .. math.random(1,999))
             SetPlayerRoutingBucket(src, randbucket)
             print('^2[qb-core]^7 '..GetPlayerName(src)..' has succesfully loaded!')
             QBCore.Commands.Refresh(src)
-            loadHouseData()
+            loadHouseData(src)
             TriggerClientEvent("qb-multicharacter:client:closeNUI", src)
             TriggerClientEvent('apartments:client:setupSpawnUI', src, newData)
             GiveStarterItems(src)
         else
             print('^2[qb-core]^7 '..GetPlayerName(src)..' has succesfully loaded!')
             QBCore.Commands.Refresh(src)
-            loadHouseData()
+            loadHouseData(src)
             TriggerClientEvent("qb-multicharacter:client:closeNUIdefault", src)
             GiveStarterItems(src)
         end
@@ -115,6 +115,7 @@ end)
 RegisterNetEvent('qb-multicharacter:server:deleteCharacter', function(citizenid)
     local src = source
     QBCore.Player.DeleteCharacter(src, citizenid)
+    TriggerClientEvent('QBCore:Notify', src, "Character deleted!" , "success")
 end)
 
 -- Callbacks
