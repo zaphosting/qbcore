@@ -452,8 +452,11 @@ QBCore.Commands.Add('transfervehicle', Lang:t('general.command_transfervehicle')
     if not plate then return TriggerClientEvent('QBCore:Notify', src, Lang:t('error.vehinfo'), 'error') end
     local player = QBCore.Functions.GetPlayer(src)
     local target = QBCore.Functions.GetPlayer(buyerId)
-    local ownerCitizenID = MySQL.scalar.await('SELECT citizenid FROM player_vehicles WHERE plate = ?', {plate})
-    if ownerCitizenID ~= player.PlayerData.citizenid then return TriggerClientEvent('QBCore:Notify', src, Lang:t('error.notown'), 'error') end
+    local row = MySQL.single.await('SELECT * FROM player_vehicles WHERE plate = ?', {plate})
+    if Config.PreventFinanceSelling then
+        if row.balance > 0 then return TriggerClientEvent('QBCore:Notify', src, Lang:t('error.financed'), 'error') end
+    end
+    if row.citizenid ~= player.PlayerData.citizenid then return TriggerClientEvent('QBCore:Notify', src, Lang:t('error.notown'), 'error') end
     if #(GetEntityCoords(ped) - GetEntityCoords(targetPed)) > 5.0 then return TriggerClientEvent('QBCore:Notify', src, Lang:t('error.playertoofar'), 'error') end
     local targetcid = target.PlayerData.citizenid
     local targetlicense = QBCore.Functions.GetIdentifier(target.PlayerData.source, 'license')

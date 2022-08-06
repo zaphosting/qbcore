@@ -297,8 +297,10 @@ end
 local function DeleteHousesTargets()
     if Config.Targets and next(Config.Targets) then
         for id, target in pairs(Config.Targets) do
-            target.zone:destroy()
-            Config.Targets[id] = nil
+            if not string.find(id, "Exit") then
+                target.zone:destroy()
+                Config.Targets[id] = nil
+            end
         end
     end
 end
@@ -603,6 +605,7 @@ local function LoadDecorations(house)
 					Wait(10)
 				end
 				local decorateObject = CreateObject(modelHash, Config.Houses[house].decorations[k].x, Config.Houses[house].decorations[k].y, Config.Houses[house].decorations[k].z, false, false, false)
+				PlaceObjectOnGroundProperly(decorateObject)
 				FreezeEntityPosition(decorateObject, true)
 				SetEntityCoordsNoOffset(decorateObject, Config.Houses[house].decorations[k].x, Config.Houses[house].decorations[k].y, Config.Houses[house].decorations[k].z)
 				Config.Houses[house].decorations[k].object = decorateObject

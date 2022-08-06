@@ -18,7 +18,8 @@ local Translations = {
         notown = "Vous ne possédez pas ce véhicule",
         buyertoopoor = "L\'acheteur n'a pas assez d'argent",
         nofinanced = "Vous n\'avez aucun véhicule financés",
-    },
+        financed = "Ce véhicule est financé",
+},
     success = {
         purchased = "Félicitations sur votre achat!",
         earned_commission = "Vous avez gagné $ %{amount} de commission",
