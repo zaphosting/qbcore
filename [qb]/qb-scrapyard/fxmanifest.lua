@@ -2,12 +2,16 @@ fx_version 'cerulean'
 game 'gta5'
 
 description 'QB-Scrapyard'
-version '1.0.0'
+version '1.2.0'
 
 shared_script {
+    '@PolyZone/client.lua',
+    '@PolyZone/BoxZone.lua',
+    '@PolyZone/ComboZone.lua',
     'config.lua',
     '@qb-core/shared/locale.lua',
-    'locales/en.lua', -- Change to the language you want
+    'locales/en.lua',
+    'locales/*.lua'
 }
 server_scripts {
     '@oxmysql/lib/MySQL.lua',

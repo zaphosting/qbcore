@@ -76,7 +76,7 @@ function removePlayerFromRadio(plySource)
 		radioData = {}
 		playerTargets(MumbleIsPlayerTalking(PlayerId()) and callData or {})
 	else
-		toggleVoice(plySource, false)
+		toggleVoice(plySource, false , 'radio')
 		if radioPressed then
 			logger.info('[radio] %s left radio %s while we were talking, updating targets.', plySource, radioChannel)
 			playerTargets(radioData, MumbleIsPlayerTalking(PlayerId()) and callData or {})
@@ -103,7 +103,6 @@ end
 
 --- exports setRadioChannel
 --- sets the local players current radio channel and updates the server
----@param channel number the channel to set the player to, or 0 to remove them.
 exports('setRadioChannel', setRadioChannel)
 -- mumble-voip compatability
 exports('SetRadioChannel', setRadioChannel)
@@ -134,7 +133,7 @@ end)
 -- exports disableRadioAnim
 --- returns whether the client is undercover or not
 exports('getRadioAnimState', function()
-	return toggleRadioAnim
+	return disableRadioAnim
 end)
 
 --- check if the player is dead
@@ -152,7 +151,7 @@ end
 
 RegisterCommand('+radiotalk', function()
 	if GetConvarInt('voice_enableRadios', 1) ~= 1 then return end
-	if isDead() then return end
+	if isDead() or LocalPlayer.state.disableRadio then return end
 
 	if not radioPressed and radioEnabled then
 		if radioChannel > 0 then
@@ -161,18 +160,16 @@ RegisterCommand('+radiotalk', function()
 			TriggerServerEvent('pma-voice:setTalkingOnRadio', true)
 			radioPressed = true
 			playMicClicks(true)
-			if GetConvarInt('voice_enableRadioAnim', 0) == 1 and not (GetConvarInt('voice_disableVehicleRadioAnim', 0) == 1 and IsPedInAnyVehicle(PlayerPedId(), false)) then
-				if not disableRadioAnim then
-					RequestAnimDict('random@arrests')
-					while not HasAnimDictLoaded('random@arrests') do
-						Citizen.Wait(10)
-					end
-					TaskPlayAnim(PlayerPedId(), "random@arrests", "generic_radio_enter", 8.0, 2.0, -1, 50, 2.0, 0, 0, 0)
+			if GetConvarInt('voice_enableRadioAnim', 0) == 1 and not (GetConvarInt('voice_disableVehicleRadioAnim', 0) == 1 and IsPedInAnyVehicle(PlayerPedId(), false)) and not disableRadioAnim then
+				RequestAnimDict('random@arrests')
+				while not HasAnimDictLoaded('random@arrests') do
+					Wait(10)
 				end
+				TaskPlayAnim(PlayerPedId(), "random@arrests", "generic_radio_enter", 8.0, 2.0, -1, 50, 2.0, false, false, false)
 			end
-			Citizen.CreateThread(function()
+			CreateThread(function()
 				TriggerEvent("pma-voice:radioActive", true)
-				while radioPressed do
+				while radioPressed and not LocalPlayer.state.disableRadio do
 					Wait(0)
 					SetControlNormal(0, 249, 1.0)
 					SetControlNormal(1, 249, 1.0)
@@ -184,7 +181,7 @@ RegisterCommand('+radiotalk', function()
 end, false)
 
 RegisterCommand('-radiotalk', function()
-	if radioChannel > 0 or radioEnabled and radioPressed then
+	if (radioChannel > 0 or radioEnabled) and radioPressed then
 		radioPressed = false
 		MumbleClearVoiceTargetPlayers(voiceTarget)
 		playerTargets(MumbleIsPlayerTalking(PlayerId()) and callData or {})

@@ -45,6 +45,10 @@ RegisterNetEvent('qb-vehiclekeys:server:breakLockpick', function(itemName)
     end
 end)
 
+RegisterNetEvent('qb-vehiclekeys:server:setVehLockState', function(vehNetId, state)
+    SetVehicleDoorsLocked(NetworkGetEntityFromNetworkId(vehNetId), state)
+end)
+
 QBCore.Functions.CreateCallback('qb-vehiclekeys:server:GetVehicleKeys', function(source, cb)
     local citizenid = QBCore.Functions.GetPlayer(source).PlayerData.citizenid
     local keysList = {}
@@ -54,6 +58,14 @@ QBCore.Functions.CreateCallback('qb-vehiclekeys:server:GetVehicleKeys', function
         end
     end
     cb(keysList)
+end)
+
+QBCore.Functions.CreateCallback('qb-vehiclekeys:server:checkPlayerOwned', function(_, cb, plate)
+    local playerOwned = false
+    if VehicleList[plate] then
+        playerOwned = true
+    end
+    cb(playerOwned)
 end)
 
 -----------------------
@@ -87,10 +99,6 @@ function HasKeys(id, plate)
     end
     return false
 end
-
-QBCore.Commands.Add("engine", Lang:t("addcom.engine"), {}, false, function(source)
-	TriggerClientEvent('qb-vehiclekeys:client:ToggleEngine', source)
-end)
 
 QBCore.Commands.Add("givekeys", Lang:t("addcom.givekeys"), {{name = Lang:t("addcom.givekeys_id"), help = Lang:t("addcom.givekeys_id_help")}}, false, function(source, args)
 	local src = source

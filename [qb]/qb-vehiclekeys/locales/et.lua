@@ -9,6 +9,8 @@ local Translations = {
         vgkeys = 'Annad võtmed üle.',
         vgetkeys = 'Saate auto võtmed!',
         fpid = 'Täitke mängija ID ja plaadi argumendid',
+        cjackfail = 'Autovargamine ebaõnnestus!',
+        vehclose = 'Thers no close vehicle!',
     },
     progress = {
         takekeys = 'Võtmete kehast võtmine...',
@@ -19,9 +21,9 @@ local Translations = {
         skeys = '~g~[H]~w~ – Võtmete otsimine',
         tlock = 'Lülitage sõiduki lukud sisse',
         palert = 'Sõiduki vargus käsil. Tüüp:',
+        engine = 'Mootori sisse- ja väljalülitamine',
     },
     addcom = {
-        engine = 'Mootori sisse- ja väljalülitamine',
         givekeys = 'Andke võtmed kellelegi üle. Kui isikut tõendav dokument puudub, annab see lähimale inimesele või kõigile sõidukis viibijatele.',
         givekeys_id = 'id',
         givekeys_id_help = 'Mängija ID',
@@ -39,7 +41,10 @@ local Translations = {
 
 }
 
-Lang = Locale:new({
-    phrases = Translations,
-    warnOnMissing = true
-})
+if GetConvar('qb_locale', 'en') == 'et' then
+    Lang = Locale:new({
+        phrases = Translations,
+        warnOnMissing = true,
+        fallbackLang = Lang,
+    })
+end

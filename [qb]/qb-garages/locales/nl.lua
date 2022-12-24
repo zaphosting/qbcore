@@ -46,15 +46,18 @@ local Translations = {
         impound = "In Beslag",
     },
     info = {
-        car_e = "~g~E~w~ - Garage",
-        sea_e = "~g~E~w~ - Boot Garage",
-        air_e = "~g~E~w~ - Hangar",
-        park_e = "~g~E~w~ - Voertuig opslaan",
+        car_e = "[E] Garage",
+        sea_e = "[E] Boot Garage",
+        air_e = "[E] Hangar",
+        park_e = "[E] Voertuig opslaan",
         house_garage = "Huis garage",
     }
 }
 
-Lang = Locale:new({
-    phrases = Translations,
-    warnOnMissing = true
-})
+if GetConvar('qb_locale', 'en') == 'nl' then
+    Lang = Locale:new({
+        phrases = Translations,
+        warnOnMissing = true,
+        fallbackLang = Lang,
+    })
+end

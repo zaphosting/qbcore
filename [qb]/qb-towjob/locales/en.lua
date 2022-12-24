@@ -30,10 +30,16 @@ local Translations = {
     info = {
         tow = "Place A Car On The Back Of Your Flatbed",
         toggle_npc = "Toggle Npc Job",
+        skick = "Attempted exploit abuse",
+    },
+    label = {
+        payslip = "Payslip",
+        vehicle = "Vehicle",
+        npcz = "NPCZone",
     }
 }
 
-Lang = Locale:new({
+Lang = Lang or Locale:new({
     phrases = Translations,
     warnOnMissing = true
 })

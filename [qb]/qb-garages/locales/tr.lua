@@ -46,15 +46,18 @@ local Translations = {
         impound = "Çekilmiş",
     },
     info = {
-        car_e = "~g~E~w~ - Garaj",
-        sea_e = "~g~E~w~ - Botgarajı",
-        air_e = "~g~E~w~ - Uçak garajı",
-        park_e = "~g~E~w~ - Mağaza Aracı",
+        car_e = "[E] Garaj",
+        sea_e = "[E] Botgarajı",
+        air_e = "[E] Uçak garajı",
+        park_e = "[E] Mağaza Aracı",
         house_garage = "Ev garajı",
     }
 }
 
-Lang = Locale:new({
-    phrases = Translations,
-    warnOnMissing = true
-})
+if GetConvar('qb_locale', 'en') == 'tr' then
+    Lang = Locale:new({
+        phrases = Translations,
+        warnOnMissing = true,
+        fallbackLang = Lang,
+    })
+end

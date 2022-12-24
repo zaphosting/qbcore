@@ -46,15 +46,18 @@ local Translations = {
         impound = "Beslaglagt af politiet",
     },
     info = {
-        car_e = "~g~E~w~ - Garage",
-        sea_e = "~g~E~w~ - Bådhus",
-        air_e = "~g~E~w~ - Hangar",
-        park_e = "~g~E~w~ - Parker Køretøj",
+        car_e = "[E] Garage",
+        sea_e = "[E] Bådhus",
+        air_e = "[E] Hangar",
+        park_e = "[E] Parker Køretøj",
         house_garage = "Bolig garage",
     }
 }
 
-Lang = Locale:new({
-    phrases = Translations,
-    warnOnMissing = true
-})
+if GetConvar('qb_locale', 'en') == 'da' then
+    Lang = Locale:new({
+        phrases = Translations,
+        warnOnMissing = true,
+        fallbackLang = Lang,
+    })
+end

@@ -1,5 +1,7 @@
 Config = {}
-
+Config.Keybind = 'F1' -- FiveM Keyboard, this is registered keymapping, so needs changed in keybindings if player already has this mapped.
+Config.Toggle = false -- use toggle mode. False requires hold of key
+Config.UseWhilstWalking = false -- use whilst walking
 Config.EnableExtraMenu = true
 Config.Fliptime = 15000
 
@@ -247,7 +249,7 @@ Config.MenuItems = {
                             }, {
                                 id = 'Mask',
                                 title = 'Mask',
-                                icon = 'theater-masks',
+                                icon = 'masks-theater',
                                 type = 'client',
                                 event = 'qb-radialmenu:ToggleClothing',
                                 shouldClose = true
@@ -261,7 +263,7 @@ Config.MenuItems = {
                             }, {
                                 id = 'Bag',
                                 title = 'Bag',
-                                icon = 'shopping-bag',
+                                icon = 'bag-shopping',
                                 type = 'client',
                                 event = 'qb-radialmenu:ToggleClothing',
                                 shouldClose = true

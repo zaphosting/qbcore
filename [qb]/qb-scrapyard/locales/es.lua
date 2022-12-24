@@ -8,18 +8,23 @@ local Translations = {
     },
     text = {
         scrapyard = 'Desguace',
-        disassemble_vehicle = '~g~E~w~ - Desguazar vehículo',
-        email_list = "~g~E~w~ - Lista de Vehículos",
+        disassemble_vehicle = '[E] - Desguazar vehículo',
+        disassemble_vehicle_target = 'Desguazar vehículo',
+        email_list = "[E] - Lista de Vehículos",
+        email_list_target = "Lista de Vehículos",
         demolish_vehicle = "Desguazar vehículo",
     },
     email = {
         sender = "Desguace de vehículos de Turner",
-		    subject = "Lista de Vehículos",
-		    message = "Solo puedes demoler unos cuantos vehículos.<br />Puedes quedarte los materiales resultantes, siempre que no me molestes.<br /><br /><strong>Lista de Vehículos:</strong><br />",
+        subject = "Lista de Vehículos",
+        message = "Solo puedes demoler unos cuantos vehículos.<br />Puedes quedarte los materiales resultantes, siempre que no me molestes.<br /><br /><strong>Lista de Vehículos:</strong><br />",
     },
 }
 
-Lang = Locale:new({
-    phrases = Translations,
-    warnOnMissing = true
-})
+if GetConvar('qb_locale', 'en') == 'es' then
+    Lang = Locale:new({
+        phrases = Translations,
+        warnOnMissing = true,
+        fallbackLang = Lang,
+    })
+end

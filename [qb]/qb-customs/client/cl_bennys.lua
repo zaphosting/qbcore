@@ -57,25 +57,25 @@ end
 
 local function AllowJob(restrictionData, job)
     if type(restrictionData.job) == "table" then
-        for _,restrictedJob in ipairs(restrictionData.job) do
+        for _, restrictedJob in ipairs(restrictionData.job) do
             if restrictedJob == job then return true end
         end
     else
         if restrictionData.job == "any" or restrictionData.job == job or not restrictionData.job then return true end
     end
-    if Config.Debug then print('Denied for not having allowed job. ('..job..')') end
+    if Config.Debug then print('Denied for not having allowed job. (' .. job .. ')') end
     return false
 end
 
 local function AllowGang(restrictionData, gang)
     if type(restrictionData.gang) == "table" then
-        for _,restrictedGang in ipairs(restrictionData.gang) do
+        for _, restrictedGang in ipairs(restrictionData.gang) do
             if restrictedGang == gang then return true end
         end
     else
         if restrictionData.gang == "any" or restrictionData.gang == gang or not restrictionData.gang then return true end
     end
-    if Config.Debug then print('Denied for not having allowed gang. ('..gang..')') end
+    if Config.Debug then print('Denied for not having allowed gang. (' .. gang .. ')') end
     return false
 end
 
@@ -83,23 +83,23 @@ local function AllowVehicleClass(restrictionData, vehicle)
     local vehicleClass = GetVehicleClass(vehicle)
 
     if restrictionData.deniedClasses then
-        for _,class in ipairs(restrictionData.deniedClasses) do
+        for _, class in ipairs(restrictionData.deniedClasses) do
             if vehicleClass == class then
-                if Config.Debug then print('Denied for having denied vehicle class. ('..vehicleClass..')') end
+                if Config.Debug then print('Denied for having denied vehicle class. (' .. vehicleClass .. ')') end
                 return false
             end
         end
     end
 
     if restrictionData.allowedClasses then
-        for _,class in ipairs(restrictionData.allowedClasses) do
+        for _, class in ipairs(restrictionData.allowedClasses) do
             if vehicleClass == class then return true end
         end
     end
 
 
     if (restrictionData.allowedClasses and restrictionData.allowedClasses[1] == nil) or not restrictionData.allowedClasses or vehicleClass == 0 then return true end
-    if Config.Debug then print('Denied for not having allowed vehicle class. ('..vehicleClass..')') end
+    if Config.Debug then print('Denied for not having allowed vehicle class. (' .. vehicleClass .. ')') end
     return false
 end
 
@@ -109,7 +109,7 @@ function AttemptPurchase(type, upgradeLevel)
     if upgradeLevel ~= nil then
         upgradeLevel = upgradeLevel + 2
     end
-    TriggerServerEvent("qb-customs:server:attemptPurchase", type, upgradeLevel)
+    TriggerServerEvent("qb-customs:server:attemptPurchase", type, upgradeLevel, CustomsData.location)
 
     attemptingPurchase = true
 
@@ -130,11 +130,11 @@ function RepairVehicle()
     local getFuel = GetVehicleFuelLevel(plyVeh)
 
     SetVehicleFixed(plyVeh)
-	SetVehicleDirtLevel(plyVeh, 0.0)
+    SetVehicleDirtLevel(plyVeh, 0.0)
     SetVehiclePetrolTankHealth(plyVeh, 4000.0)
     SetVehicleFuelLevel(plyVeh, getFuel)
 
-    for i = 0,5 do SetVehicleTyreFixed(plyVeh, i) end
+    for i = 0, 5 do SetVehicleTyreFixed(plyVeh, i) end
 end
 
 function GetCurrentMod(id)
@@ -535,8 +535,8 @@ function ApplyMod(categoryID, modID)
     local plyVeh = GetVehiclePedIsIn(plyPed, false)
 
     if categoryID == 18 then
-        ToggleVehicleMod(plyVeh, categoryID, modID+1)
-    elseif categoryID == 11 or categoryID == 12 or categoryID== 13 or categoryID == 15 or categoryID == 16 then --Performance Upgrades
+        ToggleVehicleMod(plyVeh, categoryID, modID + 1)
+    elseif categoryID == 11 or categoryID == 12 or categoryID == 13 or categoryID == 15 or categoryID == 16 then --Performance Upgrades
         originalCategory = categoryID
         originalMod = modID
 
@@ -546,6 +546,10 @@ function ApplyMod(categoryID, modID)
         originalMod = modID
 
         SetVehicleMod(plyVeh, categoryID, modID)
+
+        if categoryID == 48 then
+            SetVehicleLivery(plyVeh, modID)
+        end
     end
 end
 
@@ -555,10 +559,10 @@ function ApplyExtra(extraID)
     local isEnabled = IsVehicleExtraTurnedOn(plyVeh, extraID)
     if isEnabled == 1 then
         SetVehicleExtra(plyVeh, tonumber(extraID), 1)
-        SetVehiclePetrolTankHealth(plyVeh,4000.0)
+        SetVehiclePetrolTankHealth(plyVeh, 4000.0)
     else
         SetVehicleExtra(plyVeh, tonumber(extraID), 0)
-        SetVehiclePetrolTankHealth(plyVeh,4000.0)
+        SetVehiclePetrolTankHealth(plyVeh, 4000.0)
     end
 end
 
@@ -716,7 +720,6 @@ function ExitBennys()
     isPlyInBennys = false
 end
 
-
 function EnterLocation(override)
     local locationData = Config.Locations[CustomsData.location]
     local categories = (override and override.categories) or {
@@ -739,7 +742,7 @@ function EnterLocation(override)
     local canEnter = false
     local repairOnly = true
     if next(CustomsData) then
-        for k,v in pairs(locationData.categories) do
+        for k, v in pairs(locationData.categories) do
             if not canEnter and v then
                 if k ~= "repair" then repairOnly = false end
                 canEnter = true
@@ -748,64 +751,75 @@ function EnterLocation(override)
         end
     elseif override then canEnter = true end
 
-    if Config.Debug then
-        print('***************************************************************************')
-        print(string.format('EnterLocation Debug Start | CanEnter: %s | Repair Only: %s | Override: %s', canEnter, repairOnly, json.encode(override)))
-        print('***************************************************************************')
-        if next(locationData) then for k,v in pairs(locationData) do print(k, json.encode(v)) end end
-        for k,v in pairs(categories) do print(k,v) end
-        print('***************************************************************************')
-        print('EnterLocation Debug End')
-        print('***************************************************************************')
-    end
-
-    if not canEnter then
-        QBCore.Functions.Notify('You cant do anything here!')
-        ExitBennys()
-        return
-    end
-
-    if Config.UseRadial then
-        exports['qb-radialmenu']:RemoveOption(radialMenuItemId)
-        radialMenuItemId = nil
-    end
-
-    exports['qb-core']:HideText()
-
-    local plyPed = PlayerPedId()
-    local plyVeh = GetVehiclePedIsIn(plyPed, false)
-    local isMotorcycle
-
-    if GetVehicleClass(plyVeh) == 8 then --Motorcycle
-        isMotorcycle = true
-    else
-        isMotorcycle = false
-    end
-
-    SetVehicleModKit(plyVeh, 0)
-    SetEntityCoords(plyVeh, ((override and override.coords) or CustomsData.coords))
-    SetEntityHeading(plyVeh, ((override and override.heading) or CustomsData.heading))
-    FreezeEntityPosition(plyVeh, true)
-    SetEntityCollision(plyVeh, false, true)
-
-    local welcomeLabel = (locationData and locationData.settings.welcomeLabel) or "Welcome to Benny's Motorworks!"
-    InitiateMenus(isMotorcycle, GetVehicleBodyHealth(plyVeh), categories, welcomeLabel)
-
-    SetTimeout(100, function()
-        if GetVehicleBodyHealth(plyVeh) < 1000.0 and categories.repair then
-            DisplayMenu(true, "repairMenu")
-        else
-            DisplayMenu(true, "mainMenu")
+    QBCore.Functions.TriggerCallback('qb-vehicletuning:server:IsMechanicAvailable', function(currentMechanics)
+        if currentMechanics >= Config.MinOnlineMechanics and not override and PlayerData.job.name ~= 'mechanic' then
+            repairOnly = true
+            for k, v in pairs(Config.DisabledCategoriesMechanics) do
+                if k ~= "repair" and not v and categories[k] then repairOnly = false end
+                if v then categories[k] = false end
+            end
+            QBCore.Functions.Notify('Some purchases are currently unavailable. Please find a mechanic.')
+        end
+        if Config.Debug then
+            print('***************************************************************************')
+            print(string.format('EnterLocation Debug Start | CanEnter: %s | Repair Only: %s | Override: %s', canEnter, repairOnly, json.encode(override)))
+            print('***************************************************************************')
+            if next(locationData) then for k, v in pairs(locationData) do print(k, json.encode(v)) end end
+            for k, v in pairs(categories) do print(k, v) end
+            print('***************************************************************************')
+            print('EnterLocation Debug End')
+            print('***************************************************************************')
         end
 
-        DisplayMenuContainer(true)
-        PlaySoundFrontend(-1, "OK", "HUD_FRONTEND_DEFAULT_SOUNDSET", 1)
+        if not canEnter then
+            QBCore.Functions.Notify('You cant do anything here!')
+            ExitBennys()
+            return
+        end
+
+        if Config.UseRadial and radialMenuItemId then
+            exports['qb-radialmenu']:RemoveOption(radialMenuItemId)
+            radialMenuItemId = nil
+        end
+
+        exports['qb-core']:HideText()
+
+        local plyPed = PlayerPedId()
+        local plyVeh = GetVehiclePedIsIn(plyPed, false)
+        local isMotorcycle
+
+        if GetVehicleClass(plyVeh) == 8 then --Motorcycle
+            isMotorcycle = true
+        else
+            isMotorcycle = false
+        end
+
+        SetVehicleModKit(plyVeh, 0)
+        SetEntityCoords(plyVeh, ((override and override.coords) or CustomsData.coords))
+        SetEntityHeading(plyVeh, ((override and override.heading) or CustomsData.heading))
+        FreezeEntityPosition(plyVeh, true)
+        SetEntityCollision(plyVeh, false, true)
+
+        local vehicleHealth = GetVehicleBodyHealth(plyVeh)
+
+        local welcomeLabel = (locationData and locationData.settings.welcomeLabel) or "Welcome to Benny's Motorworks!"
+        InitiateMenus(isMotorcycle, vehicleHealth, categories, welcomeLabel)
+
+        SetTimeout(100, function()
+            if vehicleHealth < 1000.0 and Config.BaseRepairPrice + ((1000 - vehicleHealth) * Config.RepairPriceMultiplier) > 0 and categories.repair then
+                DisplayMenu(true, "repairMenu")
+            else
+                DisplayMenu(true, "mainMenu")
+            end
+
+            DisplayMenuContainer(true)
+            PlaySoundFrontend(-1, "OK", "HUD_FRONTEND_DEFAULT_SOUNDSET", 1)
+        end)
+
+        isPlyInBennys = true
+        DisableControls(repairOnly)
     end)
-
-    isPlyInBennys = true
-    DisableControls(repairOnly)
 end
-
 
 function DisableControls(repairOnly)
     CreateThread(function()
@@ -900,23 +914,29 @@ function CheckRestrictions(location)
 end
 
 function SetupInteraction()
-    local text = CustomsData.drawtextui
-    if Config.UseRadial then
-        if not radialMenuItemId then
-            radialMenuItemId = exports['qb-radialmenu']:AddOption({
-                id = 'customs',
-                title = 'Enter Customs',
-                icon = 'wrench',
-                type = 'client',
-                event = 'qb-customs:client:EnterCustoms',
-                shouldClose = true
-            })
+    QBCore.Functions.TriggerCallback('qb-vehicletuning:server:IsMechanicAvailable', function(currentMechanics)
+        local text = CustomsData.drawtextui
+        if PlayerData.job.name ~= 'mechanic' and Config.DisableWhenMechanicsOnline and currentMechanics >= Config.MinOnlineMechanics then
+            text = text .. ' is currently unavailable. Please find a mechanic.'
+        else
+            if Config.UseRadial then
+                if not radialMenuItemId then
+                    radialMenuItemId = exports['qb-radialmenu']:AddOption({
+                        id = 'customs',
+                        title = 'Enter Customs',
+                        icon = 'wrench',
+                        type = 'client',
+                        event = 'qb-customs:client:EnterCustoms',
+                        shouldClose = true
+                    })
+                end
+            else
+                text = '[E] ' .. text
+                CheckForKeypress()
+            end
         end
-    else
-        text = '[E] '..text
-        CheckForKeypress()
-    end
-    exports['qb-core']:DrawText(text, 'left')
+        exports['qb-core']:DrawText(text, 'left')
+    end)
 end
 
 exports('GetCustomsData', function() if next(CustomsData) ~= nil then return CustomsData else return nil end end)
@@ -930,7 +950,7 @@ CreateThread(function()
     for location, data in pairs(Config.Locations) do
         -- PolyZone + Drawtext + Locations Management
         for i, spot in ipairs(data.zones) do
-            local _name = location.."-customs-"..i
+            local _name = location .. "-customs-" .. i
             local newSpot = BoxZone:Create(spot.coords, spot.length, spot.width, {
                 name = _name,
                 -- debugPoly = true,
@@ -952,7 +972,7 @@ CreateThread(function()
                     CheckForGhostVehicle()
                 elseif CustomsData['location'] == location and CustomsData['spot'] == _name then
                     CustomsData = {}
-                    if Config.UseRadial then
+                    if Config.UseRadial and radialMenuItemId then
                         exports['qb-radialmenu']:RemoveOption(radialMenuItemId)
                         radialMenuItemId = nil
                     end

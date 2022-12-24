@@ -22,26 +22,26 @@ RegisterNetEvent('smallresource:client:LoadNitrous', function()
     if not NitrousActivated then
         if IsInVehicle and not IsThisModelABike(GetEntityModel(GetVehiclePedIsIn(ped))) then
             if GetPedInVehicleSeat(veh, -1) == ped then
-                QBCore.Functions.Progressbar("use_nos", "Connecting NOS...", 1000, false, true, {
+                QBCore.Functions.Progressbar("use_nos", Lang:t("text.connecting_nos"), 1000, false, true, {
                     disableMovement = false,
                     disableCarMovement = false,
                     disableMouse = false,
                     disableCombat = true,
                 }, {}, {}, {}, function() -- Done
                     TriggerEvent("inventory:client:ItemBox", QBCore.Shared.Items['nitrous'], "remove")
-                    TriggerServerEvent("QBCore:Server:RemoveItem", 'nitrous', 1)
+                    TriggerServerEvent("nitrous:server:removeItem")
                     local CurrentVehicle = GetVehiclePedIsIn(PlayerPedId())
                     local Plate = trim(GetVehicleNumberPlateText(CurrentVehicle))
                     TriggerServerEvent('nitrous:server:LoadNitrous', Plate)
                 end)
             else
-                QBCore.Functions.Notify("You cannot do that from this seat!", "error")
+                QBCore.Functions.Notify(Lang:t("error.you_cannot_do_that_from_this_seat"), "error")
             end
         else
-            QBCore.Functions.Notify('You\'re Not In A Car', 'error')
+            QBCore.Functions.Notify(Lang:t("error.you_are_not_in_a_vehicle"), 'error')
         end
     else
-        QBCore.Functions.Notify('You Already Have NOS Active', 'error')
+        QBCore.Functions.Notify(Lang:t("error.you_already_have_nos_active"), 'error')
     end
 end)
 

@@ -29,12 +29,15 @@ local Translations = {
         impounded = "საჯარიმოზე პოლიციის მიერ",
         garage_line = "ნომერი: %{value}<br>ავზი: %{value2} | მატორი: %{value3} | მდგომარეობა: %{value4}",
         depot_line = "ნომერი: %{value}<br>ავზი: %{value2} | მატორი: %{value3} | მდგომარეობა: %{value4}",
-        garage_e = "~g~E~w~ - ფარეხი",
-        park_e = "~g~E~w~ - ავტომობილის პარკირება",
+        garage_e = "[E] ფარეხი",
+        park_e = "[E] ავტომობილის პარკირება",
     }
 }
 
-Lang = Locale:new({
-    phrases = Translations,
-    warnOnMissing = true
-})
+if GetConvar('qb_locale', 'en') == 'ge' then
+    Lang = Locale:new({
+        phrases = Translations,
+        warnOnMissing = true,
+        fallbackLang = Lang,
+    })
+end

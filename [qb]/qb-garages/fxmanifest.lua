@@ -2,18 +2,19 @@ fx_version 'cerulean'
 game 'gta5'
 
 description 'QB-Garages'
-version '1.0.0'
+version '1.2.0'
 
 shared_scripts {
     'config.lua',
     '@qb-core/shared/locale.lua',
     'locales/en.lua',
+    'locales/*.lua'
 }
 
 client_scripts {
-	'@PolyZone/client.lua',
+    '@PolyZone/client.lua',
     '@PolyZone/BoxZone.lua',
-	'@PolyZone/ComboZone.lua',
+    '@PolyZone/ComboZone.lua',
     'client/main.lua',
 }
 

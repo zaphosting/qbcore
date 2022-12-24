@@ -235,10 +235,14 @@ function ActionCleanup()
         end
     end
 
-    DetachEntity(NetToObj(prop_net), 1, 1)
-    DeleteEntity(NetToObj(prop_net))
-    DetachEntity(NetToObj(propTwo_net), 1, 1)
-    DeleteEntity(NetToObj(propTwo_net))
+    if prop_net then
+        DetachEntity(NetToObj(prop_net), 1, 1)
+        DeleteEntity(NetToObj(prop_net))
+    end
+    if propTwo_net then
+        DetachEntity(NetToObj(propTwo_net), 1, 1)
+        DeleteEntity(NetToObj(propTwo_net))
+    end
     prop_net = nil
     propTwo_net = nil
     runProgThread = false
@@ -260,9 +264,12 @@ function DisableActions(ped)
 
     if Action.controlDisables.disableMovement then
         DisableControlAction(0, 30, true) -- disable left/right
+        DisableControlAction(0, 36, true) -- Left CTRL
         DisableControlAction(0, 31, true) -- disable forward/back
         DisableControlAction(0, 36, true) -- INPUT_DUCK
         DisableControlAction(0, 21, true) -- disable sprint
+        DisableControlAction(0, 75, true)  -- Disable exit vehicle
+        DisableControlAction(27, 75, true) -- Disable exit vehicle 
     end
 
     if Action.controlDisables.disableCarMovement then
@@ -288,6 +295,10 @@ function DisableActions(ped)
         DisableControlAction(0, 264, true) -- disable melee
         DisableControlAction(0, 257, true) -- disable melee
     end
+end
+
+function isDoingSomething()
+    return isDoingAction
 end
 
 RegisterNetEvent('progressbar:client:progress', function(action, finish)

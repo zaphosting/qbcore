@@ -42,12 +42,14 @@ local Translations = {
         label_c = "Normal (C)"
     },
     keymapping = {
-        gkey = 'Da drumul carutului de Hot Dog',  
+        gkey = 'Da drumul carutului de Hot Dog',
     }
 }
 
-
-Lang = Locale:new({
-    phrases = Translations,
-    warnOnMissing = true
-})
+if GetConvar('qb_locale', 'en') == 'ro' then
+    Lang = Locale:new({
+        phrases = Translations,
+        warnOnMissing = true,
+        fallbackLang = Lang,
+    })
+end

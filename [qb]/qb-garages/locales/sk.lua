@@ -29,12 +29,15 @@ local Translations = {
         impounded = "Zabavené políciou",
         garage_line = "State: %{value}<br>Palivo: %{value2} | Motor: %{value3} | Body: %{value4}",
         depot_line = "SPZ: %{value}<br>Palivo: %{value2} | Motor: %{value3} | Body: %{value4}",
-        garage_e = "~g~E~w~ - Garáž",
-        park_e = "~g~E~w~ - Zaparkovať Vozidlo",
+        garage_e = "[E] Garáž",
+        park_e = "[E] Zaparkovať Vozidlo",
     }
 }
 
-Lang = Locale:new({
-    phrases = Translations,
-    warnOnMissing = true
-})
+if GetConvar('qb_locale', 'en') == 'sk' then
+    Lang = Locale:new({
+        phrases = Translations,
+        warnOnMissing = true,
+        fallbackLang = Lang,
+    })
+end

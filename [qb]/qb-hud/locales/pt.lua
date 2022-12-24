@@ -12,10 +12,17 @@ local Translations = {
         ["cinematic_off"] = "Modo Cinematic Desativado!",
         ["engine_on"] = "Motor Ligado!",
         ["engine_off"] = "Motor Desligado!",
-        ["low_fuel"] = "Nível Do Óleo Em Baixo!",
+        ["low_fuel"] = "Nível Do Combustivel Em Baixo!",
         ["access_denied"] = "Não Estás Autorizado!",
         ["stress_gain"] = "A Sentir-me Mais Stressado(a)!",
         ["stress_removed"] = "A Sentir-me Mais Calmo(a)!"
     }
 }
-Lang = Locale:new({phrases = Translations, warnOnMissing = true})
+
+if GetConvar('qb_locale', 'en') == 'pt' then
+    Lang = Locale:new({
+        phrases = Translations,
+        warnOnMissing = true,
+        fallbackLang = Lang,
+    })
+end

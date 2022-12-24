@@ -21,7 +21,7 @@ QBCore.Functions.CreateCallback('qb-tunerchip:server:HasChip', function(source, 
     if Chip ~= nil then
         cb(true)
     else
-        DropPlayer(src, 'This is not the idea, is it?')
+        DropPlayer(src, Lang:t("text.this_is_not_the_idea_is_it"))
         cb(true)
     end
 end)
@@ -52,4 +52,12 @@ end)
 
 RegisterNetEvent('nitrous:server:StopSync', function(plate)
     TriggerClientEvent('nitrous:client:StopSync', -1, plate)
+end)
+
+RegisterNetEvent('nitrous:server:removeItem', function()
+    local Player = QBCore.Functions.GetPlayer(source)
+
+    if not Player then return end
+
+    Player.Functions.RemoveItem('nitrous', 1)
 end)
