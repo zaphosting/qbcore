@@ -8,18 +8,23 @@ local Translations = {
     },
     text = {
         scrapyard = 'Schrootwerf',
-        disassemble_vehicle = '~g~E~w~ - Voertuig Demonteren',
-        email_list = "~g~E~w~ - E-mail Voertuiglijst",
+        disassemble_vehicle = '[E] - Voertuig Demonteren',
+        disassemble_vehicle_target = 'Voertuig Demonteren',
+        email_list = "[E] - E-mail Voertuiglijst",
+        email_list_target = "E-mail Voertuiglijst",
         demolish_vehicle = "Voertuig Slopen",
     },
     email = {
         sender = "Turner’s Autosloop",
-		subject = "Voertuiglijst",
-		message = "Je kunt slechts een aantal voertuigen slopen.<br />Je kunt alles wat je sloopt voor jezelf houden zolang je mij er niet mee lastig valt.<br /><br /><strong>Voertuiglijst:</strong><br />",
+        subject = "Voertuiglijst",
+        message = "Je kunt slechts een aantal voertuigen slopen.<br />Je kunt alles wat je sloopt voor jezelf houden zolang je mij er niet mee lastig valt.<br /><br /><strong>Voertuiglijst:</strong><br />",
     },
 }
 
-Lang = Locale:new({
-    phrases = Translations,
-    warnOnMissing = true
-})
+if GetConvar('qb_locale', 'en') == 'nl' then
+    Lang = Locale:new({
+        phrases = Translations,
+        warnOnMissing = true,
+        fallbackLang = Lang,
+    })
+end

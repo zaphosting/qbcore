@@ -18,10 +18,15 @@ local Translations = {
         ["timesup"] = "Deine Zeit ist Vorbei, Gehe zum Besucher Zentrum",
     },
     info = {
-        ["timeleft"] = "Du hast noch %{JAILTIME} monate",
-        ["lost_job"] = "Du bist Arbeitslos",
+        ["timeleft"] = "Du hast noch %{JAILTIME} Monate",
+        ["lost_job"] = "Du hast deine Job verloren und bist jetzt Arbeitslos",
     }
 }
-Lang = Locale:new({
-phrases = Translations,
-warnOnMissing = true})
+
+if GetConvar('qb_locale', 'en') == 'de' then
+    Lang = Locale:new({
+        phrases = Translations,
+        warnOnMissing = true,
+        fallbackLang = Lang,
+    })
+end

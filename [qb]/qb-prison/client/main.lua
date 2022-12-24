@@ -14,6 +14,8 @@ local canteen
 
 -- Functions
 
+--- This will create the blips for the cells, time check and shop
+--- @return nil
 local function CreateCellsBlip()
 	if CellsBlip then
 		RemoveBlip(CellsBlip)
@@ -26,7 +28,7 @@ local function CreateCellsBlip()
 	SetBlipAsShortRange(CellsBlip, true)
 	SetBlipColour(CellsBlip, 4)
 	BeginTextCommandSetBlipName("STRING")
-	AddTextComponentSubstringPlayerName("Cells")
+	AddTextComponentSubstringPlayerName(Lang:t("info.cells_blip"))
 	EndTextCommandSetBlipName(CellsBlip)
 
 	if TimeBlip then
@@ -40,7 +42,7 @@ local function CreateCellsBlip()
 	SetBlipAsShortRange(TimeBlip, true)
 	SetBlipColour(TimeBlip, 4)
 	BeginTextCommandSetBlipName("STRING")
-	AddTextComponentSubstringPlayerName("Time check")
+	AddTextComponentSubstringPlayerName(Lang:t("info.freedom_blip"))
 	EndTextCommandSetBlipName(TimeBlip)
 
 	if ShopBlip then
@@ -54,8 +56,29 @@ local function CreateCellsBlip()
 	SetBlipAsShortRange(ShopBlip, true)
 	SetBlipColour(ShopBlip, 0)
 	BeginTextCommandSetBlipName("STRING")
-	AddTextComponentSubstringPlayerName("Canteen")
+	AddTextComponentSubstringPlayerName(Lang:t("info.canteen_blip"))
 	EndTextCommandSetBlipName(ShopBlip)
+end
+
+-- Add clothes to prisioner
+
+local function ApplyClothes()
+	local playerPed = PlayerPedId()
+	if DoesEntityExist(playerPed) then
+		Citizen.CreateThread(function()
+			SetPedArmour(playerPed, 0)
+			ClearPedBloodDamage(playerPed)
+			ResetPedVisibleDamage(playerPed)
+			ClearPedLastWeaponDamage(playerPed)
+			ResetPedMovementClipset(playerPed, 0)
+			local gender = QBCore.Functions.GetPlayerData().charinfo.gender
+			if gender == 0 then
+				TriggerEvent('qb-clothing:client:loadOutfit', Config.Uniforms.male)
+			else
+				TriggerEvent('qb-clothing:client:loadOutfit', Config.Uniforms.female)
+			end
+		end)
+	end
 end
 
 
@@ -103,7 +126,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
 				type = "client",
 				event = "prison:client:Leave",
 				icon = 'fas fa-clipboard',
-				label = 'Check time',
+				label = Lang:t("info.target_freedom_option"),
 				canInteract = function()
 					return inJail
 				end
@@ -118,7 +141,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
 				type = "client",
 				event = "prison:client:canteen",
 				icon = 'fas fa-clipboard',
-				label = 'Get Food',
+				label = Lang:t("info.target_canteen_option"),
 				canInteract = function()
 					return inJail
 				end
@@ -173,7 +196,7 @@ AddEventHandler('onResourceStart', function(resource)
 				type = "client",
 				event = "prison:client:Leave",
 				icon = 'fas fa-clipboard',
-				label = 'Check time',
+				label = Lang:t("info.target_freedom_option"),
 				canInteract = function()
 					return inJail
 				end
@@ -188,7 +211,7 @@ AddEventHandler('onResourceStart', function(resource)
 				type = "client",
 				event = "prison:client:canteen",
 				icon = 'fas fa-clipboard',
-				label = 'Get Food',
+				label = Lang:t("info.target_canteen_option"),
 				canInteract = function()
 					return inJail
 				end
@@ -214,7 +237,11 @@ RegisterNetEvent('prison:client:Enter', function(time)
 
 	QBCore.Functions.Notify( Lang:t("error.injail", {Time = time}), "error")
 
-	TriggerEvent("chatMessage", "SYSTEM", "warning", "Your property has been seized, you'll get everything back when your time is up..")
+	TriggerEvent("chat:addMessage", {
+		color = {3, 132, 252},
+		multiline = true,
+		args = {"SYSTEM", Lang:t("info.seized_property")}
+	})
 	DoScreenFadeOut(500)
 	while not IsScreenFadedOut() do
 		Wait(10)
@@ -235,6 +262,7 @@ RegisterNetEvent('prison:client:Enter', function(time)
 	end
 	currentJob = tempJobs[math.random(1, #tempJobs)]
 	CreateJobBlip(true)
+	ApplyClothes()
 	TriggerServerEvent("prison:server:SetJailStatus", jailTime)
 	TriggerServerEvent("prison:server:SaveJailItems", jailTime)
 	TriggerServerEvent("InteractSound_SV:PlayOnSource", "jail", 0.5)
@@ -251,7 +279,11 @@ RegisterNetEvent('prison:client:Leave', function()
 		jailTime = 0
 		TriggerServerEvent("prison:server:SetJailStatus", 0)
 		TriggerServerEvent("prison:server:GiveJailItems")
-		TriggerEvent("chatMessage", "SYSTEM", "warning", "you've received your property back..")
+		TriggerEvent("chat:addMessage", {
+			color = {3, 132, 252},
+			multiline = true,
+			args = {"SYSTEM", Lang:t("info.received_property")}
+		})
 		inJail = false
 		RemoveBlip(currentBlip)
 		RemoveBlip(CellsBlip)
@@ -265,6 +297,7 @@ RegisterNetEvent('prison:client:Leave', function()
 		while not IsScreenFadedOut() do
 			Wait(10)
 		end
+		TriggerServerEvent('qb-clothes:loadPlayerSkin')
 		SetEntityCoords(PlayerPedId(), Config.Locations["outside"].coords.x, Config.Locations["outside"].coords.y, Config.Locations["outside"].coords.z, 0, 0, 0, false)
 		SetEntityHeading(PlayerPedId(), Config.Locations["outside"].coords.w)
 
@@ -278,7 +311,11 @@ RegisterNetEvent('prison:client:UnjailPerson', function()
 	if jailTime > 0 then
 		TriggerServerEvent("prison:server:SetJailStatus", 0)
 		TriggerServerEvent("prison:server:GiveJailItems")
-		TriggerEvent("chatMessage", "SYSTEM", "warning", "You got your property back..")
+		TriggerEvent("chat:addMessage", {
+			color = {3, 132, 252},
+			multiline = true,
+			args = {"SYSTEM", Lang:t("info.received_property")}
+		})
 		inJail = false
 		RemoveBlip(currentBlip)
 		RemoveBlip(CellsBlip)
@@ -292,6 +329,7 @@ RegisterNetEvent('prison:client:UnjailPerson', function()
 		while not IsScreenFadedOut() do
 			Wait(10)
 		end
+		TriggerServerEvent('qb-clothes:loadPlayerSkin')
 		SetEntityCoords(PlayerPedId(), Config.Locations["outside"].coords.x, Config.Locations["outside"].coords.y, Config.Locations["outside"].coords.z, 0, 0, 0, false)
 		SetEntityHeading(PlayerPedId(), Config.Locations["outside"].coords.w)
 		Wait(500)
@@ -338,6 +376,17 @@ CreateThread(function()
 		freedom:onPlayerInOut(function(isPointInside)
 			insidefreedom = isPointInside
 			if isPointInside then
+				CreateThread(function()
+					while insidefreedom do
+						if IsControlJustReleased(0, 38) then
+							exports['qb-core']:KeyPressed()
+							exports['qb-core']:HideText()
+							TriggerEvent("prison:client:Leave")
+							break
+						end
+						Wait(0)
+					end
+				end)
 				exports['qb-core']:DrawText('[E] Check Time', 'left')
 			else
 				exports['qb-core']:HideText()
@@ -350,32 +399,21 @@ CreateThread(function()
 		canteen:onPlayerInOut(function(isPointInside)
 			insidecanteen = isPointInside
 			if isPointInside then
+				CreateThread(function()
+					while insidecanteen do
+						if IsControlJustReleased(0, 38) then
+							exports['qb-core']:KeyPressed()
+							exports['qb-core']:HideText()
+							TriggerEvent("prison:client:canteen")
+							break
+						end
+						Wait(0)
+					end
+				end)
 				exports['qb-core']:DrawText('[E] Open Canteen', 'left')
 			else
 				exports['qb-core']:HideText()
 			end
 		end)
-		while true do
-			local sleep = 1000
-			if insidefreedom then
-				sleep = 0
-				if IsControlJustReleased(0, 38) then
-					exports['qb-core']:KeyPressed()
-					Wait(500)
-					exports['qb-core']:HideText()
-					TriggerEvent("prison:client:Leave")
-				end
-			end
-			if insidecanteen then
-				sleep = 0
-				if IsControlJustReleased(0, 38) then
-					exports['qb-core']:KeyPressed()
-					Wait(500)
-					exports['qb-core']:HideText()
-					TriggerEvent("prison:client:canteen")
-				end
-			end
-			Wait(sleep)
-		end
 	end
 end)

@@ -2,8 +2,47 @@ Config = {}
 
 Config.UseTarget = GetConvar('UseTarget', 'false') == 'true' -- Use qb-target interactions (don't change this, go to your server.cfg and add `setr UseTarget true` to use this and just that from true to false or the other way around)
 
+local isServer = IsDuplicityVersion()
+if not isServer then
+    --- This function will be triggered once the hack is done
+    --- @param success boolean
+    --- @param currentGate number
+    --- @param gateData table
+    --- @return nil
+    function Config.OnHackDone(success, currentGate, gateData)
+        if success then
+            TriggerServerEvent("prison:server:SetGateHit", currentGate)
+            TriggerServerEvent('qb-doorlock:server:updateState', gateData.gatekey, false, false, false, true)
+        else
+            TriggerServerEvent("prison:server:SecurityLockdown")
+        end
+        TriggerEvent('mhacking:hide')
+    end
+end
+
 Config.Jobs = {
     ["electrician"] = "Electrician"
+}
+
+Config.Uniforms ={
+    ['male'] = {
+        outfitData ={
+            ['t-shirt'] = {item = 15, texture = 0},
+            ['torso2'] = {item = 345, texture = 0},
+			['arms'] = {item = 19, texture = 0},
+			['pants'] = {item = 3, texture = 7},
+			['shoes'] = {item = 1, texture = 0},
+        }
+    },
+    ['female'] = {
+        outfitData ={
+            ['t-shirt'] = {item = 14, texture = 0},
+			['torso2'] = {item = 370, texture = 0},
+			['arms'] = {item = 0, texture = 0},
+			['pants'] = {item = 0, texture = 12},
+			['shoes'] = {item = 1, texture = 0},
+        }
+    },
 }
 
 Config.Locations = {

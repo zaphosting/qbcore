@@ -106,7 +106,7 @@ QBCore.Functions.CreateCallback("weapons:server:RepairWeapon", function(source, 
                         Config.WeaponRepairPoints[RepairPoint].IsRepairing = false
                         Config.WeaponRepairPoints[RepairPoint].RepairingData.Ready = true
                         TriggerClientEvent('weapons:client:SyncRepairShops', -1, Config.WeaponRepairPoints[RepairPoint], RepairPoint)
-                        TriggerEvent('qb-phone:server:sendNewMailToOffline', Player.PlayerData.citizenid, {
+                        exports['qb-phone']:sendNewMailToOffline(Player.PlayerData.citizenid, {
                             sender = Lang:t('mail.sender'),
                             subject = Lang:t('mail.subject'),
                             message = Lang:t('mail.message', { value = WeaponData.label })
@@ -138,19 +138,38 @@ QBCore.Functions.CreateCallback("weapons:server:RepairWeapon", function(source, 
     end
 end)
 
--- Events
+QBCore.Functions.CreateCallback('prison:server:checkThrowable', function(source, cb, weapon)
+    local Player = QBCore.Functions.GetPlayer(source)
 
-RegisterNetEvent("weapons:server:AddWeaponAmmo", function(CurrentWeaponData, amount)
-    local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
-    amount = tonumber(amount)
-    if CurrentWeaponData then
-        if Player.PlayerData.items[CurrentWeaponData.slot] then
-            Player.PlayerData.items[CurrentWeaponData.slot].info.ammo = amount
-        end
-        Player.Functions.SetInventory(Player.PlayerData.items, true)
+    if not Player then return cb(false) end
+
+    if QBCore.Shared.Weapons[weapon]["name"] == "weapon_snowball" then
+        Player.Functions.RemoveItem("weapon_snowball", 1)
+    elseif QBCore.Shared.Weapons[weapon]["name"] == "weapon_pipebomb" then
+        Player.Functions.RemoveItem("weapon_pipebomb", 1)
+    elseif QBCore.Shared.Weapons[weapon]["name"] == "weapon_molotov" then
+        Player.Functions.RemoveItem("weapon_molotov", 1)
+    elseif QBCore.Shared.Weapons[weapon]["name"] == "weapon_stickybomb" then
+        Player.Functions.RemoveItem("weapon_stickybomb", 1)
+    elseif QBCore.Shared.Weapons[weapon]["name"] == "weapon_grenade" then
+        Player.Functions.RemoveItem("weapon_grenade", 1)
+    elseif QBCore.Shared.Weapons[weapon]["name"] == "weapon_bzgas" then
+        Player.Functions.RemoveItem("weapon_bzgas", 1)
+    elseif QBCore.Shared.Weapons[weapon]["name"] == "weapon_proxmine" then
+        Player.Functions.RemoveItem("weapon_proxmine", 1)
+    elseif QBCore.Shared.Weapons[weapon]["name"] == "weapon_ball" then
+        Player.Functions.RemoveItem("weapon_ball", 1)
+    elseif QBCore.Shared.Weapons[weapon]["name"] == "weapon_smokegrenade" then
+        Player.Functions.RemoveItem("weapon_smokegrenade", 1)
+    elseif QBCore.Shared.Weapons[weapon]["name"] == "weapon_flare" then
+        Player.Functions.RemoveItem("weapon_flare", 1)
+    else
+        return cb(false)
     end
+    cb(true)
 end)
+
+-- Events
 
 RegisterNetEvent("weapons:server:UpdateWeaponAmmo", function(CurrentWeaponData, amount)
     local src = source
@@ -198,7 +217,7 @@ RegisterNetEvent('weapons:server:UpdateWeaponQuality', function(data, RepeatAmou
                         WeaponSlot.info.quality = WeaponSlot.info.quality - DecreaseAmount
                     else
                         WeaponSlot.info.quality = 0
-                        TriggerClientEvent('inventory:client:UseWeapon', src, data)
+                        TriggerClientEvent('inventory:client:UseWeapon', src, data, false)
                         TriggerClientEvent('QBCore:Notify', src, Lang:t('error.weapon_broken_need_repair'), "error")
                         break
                     end
@@ -210,7 +229,7 @@ RegisterNetEvent('weapons:server:UpdateWeaponQuality', function(data, RepeatAmou
                         WeaponSlot.info.quality = WeaponSlot.info.quality - DecreaseAmount
                     else
                         WeaponSlot.info.quality = 0
-                        TriggerClientEvent('inventory:client:UseWeapon', src, data)
+                        TriggerClientEvent('inventory:client:UseWeapon', src, data, false)
                         TriggerClientEvent('QBCore:Notify', src, Lang:t('error.weapon_broken_need_repair'), "error")
                         break
                     end
@@ -276,6 +295,14 @@ RegisterNetEvent("weapons:server:EquipAttachment", function(ItemData, CurrentWea
     end
 end)
 
+RegisterNetEvent('weapons:server:removeWeaponAmmoItem', function(item)
+    local Player = QBCore.Functions.GetPlayer(source)
+
+    if not Player or type(item) ~= 'table' or not item.name or not item.slot then return end
+
+    Player.Functions.RemoveItem(item.name, 1, item.slot)
+end)
+
 -- Commands
 
 QBCore.Commands.Add("repairweapon", "Repair Weapon (God Only)", {{name="hp", help=Lang:t('info.hp_of_weapon')}}, true, function(source, args)
@@ -286,31 +313,31 @@ end, "god")
 
 -- AMMO
 QBCore.Functions.CreateUseableItem('pistol_ammo', function(source, item)
-    TriggerClientEvent('weapon:client:AddAmmo', source, 'AMMO_PISTOL', 12, item)
+    TriggerClientEvent('weapons:client:AddAmmo', source, 'AMMO_PISTOL', 12, item)
 end)
 
 QBCore.Functions.CreateUseableItem('rifle_ammo', function(source, item)
-    TriggerClientEvent('weapon:client:AddAmmo', source, 'AMMO_RIFLE', 30, item)
+    TriggerClientEvent('weapons:client:AddAmmo', source, 'AMMO_RIFLE', 30, item)
 end)
 
 QBCore.Functions.CreateUseableItem('smg_ammo', function(source, item)
-    TriggerClientEvent('weapon:client:AddAmmo', source, 'AMMO_SMG', 20, item)
+    TriggerClientEvent('weapons:client:AddAmmo', source, 'AMMO_SMG', 20, item)
 end)
 
 QBCore.Functions.CreateUseableItem('shotgun_ammo', function(source, item)
-    TriggerClientEvent('weapon:client:AddAmmo', source, 'AMMO_SHOTGUN', 10, item)
+    TriggerClientEvent('weapons:client:AddAmmo', source, 'AMMO_SHOTGUN', 10, item)
 end)
 
 QBCore.Functions.CreateUseableItem('mg_ammo', function(source, item)
-    TriggerClientEvent('weapon:client:AddAmmo', source, 'AMMO_MG', 30, item)
+    TriggerClientEvent('weapons:client:AddAmmo', source, 'AMMO_MG', 30, item)
 end)
 
 QBCore.Functions.CreateUseableItem('snp_ammo', function(source, item)
-    TriggerClientEvent('weapon:client:AddAmmo', source, 'AMMO_SNIPER', 10, item)
+    TriggerClientEvent('weapons:client:AddAmmo', source, 'AMMO_SNIPER', 10, item)
 end)
 
 QBCore.Functions.CreateUseableItem('emp_ammo', function(source, item)
-    TriggerClientEvent('weapon:client:AddAmmo', source, 'AMMO_EMPLAUNCHER', 10, item)
+    TriggerClientEvent('weapons:client:AddAmmo', source, 'AMMO_EMPLAUNCHER', 10, item)
 end)
 
 -- TINTS
@@ -477,6 +504,10 @@ end)
 
 QBCore.Functions.CreateUseableItem('smg_extendedclip', function(source, item)
     TriggerClientEvent('weapons:client:EquipAttachment', source, item, 'extendedclip')
+end)
+
+QBCore.Functions.CreateUseableItem('smg_suppressor', function(source, item)
+    TriggerClientEvent('weapons:client:EquipAttachment', source, item, 'suppressor')
 end)
 
 QBCore.Functions.CreateUseableItem('smg_drum', function(source, item)

@@ -29,12 +29,15 @@ local Translations = {
         impounded = "حجزتها الشرطة",
         garage_line = "%{value}<br>البنزين: %{value2} | المحرك: %{value3} | الجسم: %{value4}",
         depot_line = "%{value}<br>البنزين: %{value2} | المحرك: %{value3} | الجسم: %{value4}",
-        garage_e = "~g~E~w~ - ﺝﺍﺮﻏ",
-        park_e = "~g~E~w~ - ﺓﺭﺎﻴﺴﻟﺍ ﻦﻳﺰﺨﺗ",
+        garage_e = "[E] ﺝﺍﺮﻏ",
+        park_e = "[E] ﺓﺭﺎﻴﺴﻟﺍ ﻦﻳﺰﺨﺗ",
     }
 }
 
-Lang = Locale:new({
-    phrases = Translations,
-    warnOnMissing = true
-})
+if GetConvar('qb_locale', 'en') == 'ar' then
+    Lang = Locale:new({
+        phrases = Translations,
+        warnOnMissing = true,
+        fallbackLang = Lang,
+    })
+end

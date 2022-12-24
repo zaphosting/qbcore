@@ -6,9 +6,12 @@ local Translations = {
         ["not_wearing"] = "You are not wearing a diving gear ..",
         ["no_coral"] = "You don't have any coral to sell..",
         ["not_standing_up"] = "You need to be standing up to put on the diving gear",
+        ["need_otube"] = "you need oxygen tube",
+        ["oxygenlevel"] = 'the gear level is %{oxygenlevel} must be 0%'
     },
     success = {
         ["took_out"] = "You took your wetsuit off",
+        ["tube_filled"] = "The tube has been filled successfully"
     },
     info = {
         ["collecting_coral"] = "Collecting coral",
@@ -30,7 +33,8 @@ local Translations = {
         ["oxygen_running_out"] = "Your diving gear is running out of air",
     },
 }
-Lang = Locale:new({
+
+Lang = Lang or Locale:new({
     phrases = Translations,
     warnOnMissing = true
 })

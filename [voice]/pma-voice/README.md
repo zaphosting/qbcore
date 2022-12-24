@@ -1,3 +1,10 @@
+## PLEASE NOTE: Currently master branch has some breaking changes
+
+If you previously used `voice_defaultPhoneVolume` you will instead need to use `voice_defaultCallVolume`
+If you previously used `voice_enablePhones` you will instead need to use `voice_enableCalls`
+
+If you were previously using the state bag getter `Player(source).state.phone` you will instead need to use `Player(source).state.call`
+
 # pma-voice
 A voice system designed around the use of FiveM/RedM internal mumble server.
 
@@ -11,7 +18,7 @@ Please report any issues you have in the GitHub [Issues](https://github.com/Avar
 
 This script is not compatible with other voice systems (duh), that means if you have vMenus voice chat you will **have** to [disable](https://docs.vespura.com/vmenu/faq/#q-how-do-i-disable-voice-chat) it.
 
-Please do not override `NetworkSetTalkerProximity`, `MumbleSetAudioInputDistance`, `MumbleSetAudioOutputDistance` or `NetworkSetVoiceActive` in any of your other scripts as there have been cases where it breaks pma-voice.
+Please do not override `NetworkSetTalkerProximity`, `MumbleSetTalkerProximity`, `MumbleSetAudioInputDistance`, `MumbleSetAudioOutputDistance` or `NetworkSetVoiceActive` in any of your other scripts as there have been cases where it breaks pma-voice.
 
 # Credits
 
@@ -55,16 +62,16 @@ All of the configs here are set using `setr [voice_configOption] [int]` OR `setr
 | voice_enableProximityCycle   |    1    | Enables the usage of the F11 proximity key, if disabled players are stuck on the first proximity  | int          |
 | voice_defaultCycle           |   F11   | The default key to cycle the players proximity. You can find a list of valid keys [in the Cfx docs](https://docs.fivem.net/docs/game-references/input-mapper-parameter-ids/keyboard/)                | string       |
 | voice_defaultRadioVolume          |   30   | The default volume to set the radio to (has to be between 1 and 100) *NOTE: Only new joins will have the new value, players that already joined will not.* | float       |
-| voice_defaultPhoneVolume          |   60   | The default volume to set the phone to (has to be between 1 and 100) *NOTE: Only new joins will have the new value, players that already joined will not.* | float       |
+| voice_defaultCallVolume          |   60   | The default volume to set the call to (has to be between 1 and 100) *NOTE: Only new joins will have the new value, players that already joined will not.* | float       |
 | voice_defaultVoiceMode  |  2      | Default proximity voice value when player joins server. (Voice Modes; 1:Whisper, 2:Normal, 3:Shouting) | int      |
 
-### Phone & Radio
+### Call & Radio
 
 | ConVar                  | Default | Description                                                        | Parameter(s) |
 |-------------------------|---------|--------------------------------------------------------------------|--------------|
 | voice_enableRadios           |    1    | Enables the radio sub-modules                                 | int          |
-| voice_enablePhones           |    1    | Enables the phone sub-modules                                 | int          |
-| voice_enableSubmix      |    1    | Enables the submix which adds a radio/phone style submix to their voice **NOTE: Submixs require native audio** | int          |
+| voice_enableCalls           |    1    | Enables the call sub-modules                                 | int          |
+| voice_enableSubmix      |    1    | Enables the submix which adds a radio/call style submix to their voice **NOTE: Submixs require native audio** | int          |
 | voice_enableRadioAnim        |   0     | Enables (grab shoulder mic) animation while talking on the radio.          | int          |
 | voice_defaultRadio           |   LMENU  | The default key to use the radio. You can find a list of valid keys [in the FiveM docs](https://docs.fivem.net/docs/game-references/input-mapper-parameter-ids/keyboard/)                             | string       |
 

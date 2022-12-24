@@ -204,12 +204,13 @@ function InitiateMenus(isMotorcycle, vehicleHealth, categories, welcomeLabel)
     local plyVeh = GetVehiclePedIsIn(plyPed, false)
     --#[Repair Menu]#--
     if vehicleHealth < 1000.0 and categories.repair then
-        local repairCost = math.ceil(1000 - vehicleHealth)
-
-        TriggerServerEvent("qb-customs:server:updateRepairCost", repairCost)
-        createMenu("repairMenu", welcomeLabel, "Repair Vehicle")
-        populateMenu("repairMenu", -1, "Repair", "$" .. repairCost)
-        finishPopulatingMenu("repairMenu")
+        local repairCost = math.ceil(Config.BaseRepairPrice + ((1000 - vehicleHealth) * Config.RepairPriceMultiplier))
+        if repairCost > 0 then
+            TriggerServerEvent("qb-customs:server:updateRepairCost", repairCost)
+            createMenu("repairMenu", welcomeLabel, "Repair Vehicle")
+            populateMenu("repairMenu", -1, "Repair", "$" .. repairCost)
+            finishPopulatingMenu("repairMenu")
+        end
     end
 
     --#[Main Menu]#--
@@ -443,7 +444,7 @@ function InitiateMenus(isMotorcycle, vehicleHealth, categories, welcomeLabel)
     if livCount > 0 then
         local tempOldLivery = GetVehicleLivery(plyVeh)
         createMenu("OldLiveryMenu", "Old Livery Customisation", "Choose a Livery")
-        for i=0, livCount-1 do
+        for i = 0, livCount - 1 do
             populateMenu("OldLiveryMenu", i, "Livery", "$100")
             if tempOldLivery == i then
                 updateItem2Text("OldLiveryMenu", i, "Installed")
@@ -464,9 +465,9 @@ function InitiateMenus(isMotorcycle, vehicleHealth, categories, welcomeLabel)
         "Blue on White #3",
         "North Yankton",
     }
-    for i=0, #plateTypes-1 do
+    for i = 0, #plateTypes - 1 do
         if i ~= 4 or (i == 4 and GetVehicleClass(plyVeh) == 18) or Config.allowGovPlateIndex then
-            populateMenu("PlateIndexMenu", i, plateTypes[i+1], "$"..vehicleCustomisationPrices.plateindex.price)
+            populateMenu("PlateIndexMenu", i, plateTypes[i + 1], "$" .. vehicleCustomisationPrices.plateindex.price)
             if tempPlateIndex == i then
                 updateItem2Text("PlateIndexMenu", i, "Installed")
             end
@@ -476,9 +477,9 @@ function InitiateMenus(isMotorcycle, vehicleHealth, categories, welcomeLabel)
 
     --#[Vehicle Extras Menu]#--
     createMenu("VehicleExtrasMenu", "Vehicle Extras Customisation", "Toggle Extras")
-    for i=1, 12 do
+    for i = 1, 12 do
         if DoesExtraExist(plyVeh, i) then
-            populateMenu("VehicleExtrasMenu", i, "Extra "..tostring(i), "Toggle")
+            populateMenu("VehicleExtrasMenu", i, "Extra " .. tostring(i), "Toggle")
         else
             populateMenu("VehicleExtrasMenu", i, "No Option", "NONE")
         end
@@ -587,7 +588,7 @@ function MenuManager(state, repairOnly)
                     else
                         updateMenuStatus("Not Enough Money!")
                     end
-                elseif currentCategory == 11 or currentCategory == 12 or currentCategory== 13 or currentCategory == 15 or currentCategory == 16 then --Performance Upgrades
+                elseif currentCategory == 11 or currentCategory == 12 or currentCategory == 13 or currentCategory == 15 or currentCategory == 16 then --Performance Upgrades
                     if AttemptPurchase("performance", currentMenuItemID) then
                         ApplyMod(currentCategory, currentMenuItemID)
                         playSoundEffect("wrench", 0.4)

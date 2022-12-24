@@ -212,9 +212,8 @@ end)
 RegisterNetEvent('qb-lapraces:server:JoinRace', function(RaceData)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
-    local RaceName = RaceData.RaceData.RaceName
-    local RaceId = GetRaceId(RaceName)
-    local AvailableKey = GetOpenedRaceKey(RaceData.RaceId)
+    local RaceId = RaceData.RaceId
+    local AvailableKey = GetOpenedRaceKey(RaceId)
     local CurrentRace = GetCurrentRace(Player.PlayerData.citizenid)
     if CurrentRace ~= nil then
         local AmountOfRacers = 0
@@ -243,7 +242,7 @@ RegisterNetEvent('qb-lapraces:server:JoinRace', function(RaceData)
         Finished = false
     }
     AvailableRaces[AvailableKey].RaceData = Races[RaceId]
-    TriggerClientEvent('qb-lapraces:client:JoinRace', src, Races[RaceId], RaceData.Laps)
+    TriggerClientEvent('qb-lapraces:client:JoinRace', src, Races[RaceId], AvailableRaces[AvailableKey].Laps)
     TriggerClientEvent('qb-phone:client:UpdateLapraces', -1)
     local creatorsource = QBCore.Functions.GetPlayerByCitizenId(AvailableRaces[AvailableKey].SetupCitizenId).PlayerData
                               .source
@@ -379,6 +378,35 @@ RegisterNetEvent('qb-lapraces:server:SetupRace', function(RaceId, Laps)
         end
     else
         TriggerClientEvent('QBCore:Notify', source, 'This race does not exist :(', 'error')
+    end
+end)
+
+RegisterNetEvent('qb-lapraces:server:CancelRace', function(raceId)
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(source)
+    local AvailableKey = GetOpenedRaceKey(raceId)
+
+    TriggerClientEvent('QBCore:Notify', src, 'Stopping the race: ' .. raceId, 'error')
+
+    if AvailableKey ~= nil then
+        if AvailableRaces[AvailableKey].SetupCitizenId == Player.PlayerData.citizenid then
+            for cid, _ in pairs(Races[raceId].Racers) do
+                local RacerData = QBCore.Functions.GetPlayerByCitizenId(cid)
+                if RacerData ~= nil then
+                    TriggerClientEvent('qb-lapraces:client:LeaveRace', RacerData.PlayerData.source, Races[raceId])
+                end
+            end
+
+            table.remove(AvailableRaces, AvailableKey)
+            Races[raceId].LastLeaderboard = {}
+            Races[raceId].Racers = {}
+            Races[raceId].Started = false
+            Races[raceId].Waiting = false
+            LastRaces[raceId] = nil
+            TriggerClientEvent('qb-phone:client:UpdateLapraces', -1)
+        end
+    else
+        TriggerClientEvent('QBCore:Notify', src, 'Race not open: ' .. raceId, 'error')
     end
 end)
 

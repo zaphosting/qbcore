@@ -75,7 +75,8 @@ local Translations = {
         command_transfervehicle_amount = "Sell amount (optionnal)",
     }
 }
-Lang = Locale:new({
+
+Lang = Lang or Locale:new({
     phrases = Translations,
     warnOnMissing = true
 })
